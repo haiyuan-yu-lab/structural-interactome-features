@@ -1,6 +1,8 @@
 import sys
 import time
 import requests
+from typing import Dict, List
+from pathlib import Path
 
 # URL to the Batch CD-Search server
 BWRPSB_URL = "https://www.ncbi.nlm.nih.gov/Structure/bwrpsb/bwrpsb.cgi"
@@ -11,7 +13,7 @@ if not any(queries):
     sys.exit("No valid queries!\n")
 
 
-def run(params, sequneces):
+def run(params: Dict, sequences: List, out_file: Path):
 
     # Submitting the search
     response = requests.post(BWRPSB_URL, data=params)

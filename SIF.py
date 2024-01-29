@@ -6,7 +6,7 @@ Usage:
 
 Each command supports a -h flag that explains its purpose and arguments.
 """
-from src.core import commands
+from core import commands
 
 if __name__ == "__main__":
     import argparse
@@ -76,12 +76,12 @@ if __name__ == "__main__":
     )
 
     cdd_search.set_defaults(func=commands.cdd_search)
-    cdd_search.add_argument("-i", "--in",
+    cdd_search.add_argument("-i", "--in-file",
                             help="Path to a FASTA file containing all query"
                                  " sequences",
                             type=str,
                             required=True)
-    cdd_search.add_argument("-o", "--out",
+    cdd_search.add_argument("-o", "--out-file",
                             help="Path to the output file",
                             type=str,
                             required=True)
