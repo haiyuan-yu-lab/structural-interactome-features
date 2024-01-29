@@ -7,6 +7,7 @@ def pdb_ex_seqs(args):
 
 
 def cdd_search(args):
+    from io.cdd_search import r
     pass
 
 
