@@ -19,7 +19,7 @@ tar xvzf cdd.tar.gz
 ```
 3. Build the CDD database 
 ```bash
-docker1 run --rm -v /wd/data/cdd/:/blast/blastdb_custom:rw -w /blast/blastdb_custom ncbi/blast makeprofiledb -title CDD.v.3.12 -in Cdd.pn -out Cdd -threshold 9.82 -scale 100.0 -dbtype rps -index true
+docker run --rm -v /wd/data/cdd/:/blast/blastdb_custom:rw -w /blast/blastdb_custom ncbi/blast makeprofiledb -title CDD.v.3.12 -in Cdd.pn -out Cdd -threshold 9.82 -scale 100.0 -dbtype rps -index true
 ```
 4. Return to the working directory, and create the custom CDD BLAST alias file
 ```bash

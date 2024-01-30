@@ -1,37 +1,28 @@
 from pathlib import Path
+import logging
+log = logging.getLogger(__name__)
 
 
-def cdhit_cluster(args):
+def cdhit_cluster(args, config):
     pass
 
 
-def pdb_ex_seqs(args):
+def pdb_ex_seqs(args, config):
     pass
 
 
-def cdd_search(args):
+def cdd_search(args, config):
     from siflib.io.cdd_search import run
-    from siflib.io.parsers import parse_fasta
+    assert "CDD_BIN" in config
+
     in_file = Path(args.in_file)
+    assert in_file.is_file()
+
+    # domains file
+    domains_file = Path(args.domains_file)
     out_file = Path(args.out_file)
-    sequences = parse_fasta(in_file)
-    # Set default values
-    params = {
-        "cdsid": "",
-        "cddefl": "false",
-        "qdefl": "false",
-        "smode": "auto",
-        "useid1": "true",
-        "maxhit": 250,
-        "filter": "true",
-        "db": "cdd",
-        "evalue": 0.01,
-        "dmode": "rep",
-        "clonly": "false",
-        "tdata": "hits"
-    }
-    run(params, sequences, out_file)
+    run(in_file, out_file, domains_file, config["CDD_BIN"])
 
 
-def generate_models(args):
+def generate_models(args, config):
     pass

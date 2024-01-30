@@ -6,10 +6,19 @@ Usage:
 
 Each command supports a -h flag that explains its purpose and arguments.
 """
-from core import commands
+from siflib.core import commands
+import logging
+logging.basicConfig(format="[%(asctime)s](%(levelname)s - %(module)s)"
+                    " %(message)s",
+                    datefmt="%Y-%m-%d %I:%M:%S %p",
+                    level=logging.INFO)
 
 if __name__ == "__main__":
+    from dotenv import dotenv_values
     import argparse
+
+    config = dotenv_values(".env")
+
     parser = argparse.ArgumentParser(
         description="Structurally Informed Features"
     )
@@ -27,7 +36,7 @@ if __name__ == "__main__":
              " structural neighborhood calculation."
     )
     cdhit_cluster.set_defaults(func=commands.cdhit_cluster)
-    cdhit_cluster.add_argument("-i", "--in",
+    cdhit_cluster.add_argument("-i", "--in-file",
                                help="Path to a directory containing PDB files",
                                type=str,
                                default="")
@@ -58,7 +67,7 @@ if __name__ == "__main__":
     )
 
     pdb_ex_seqs.set_defaults(func=commands.pdb_ex_seqs)
-    pdb_ex_seqs.add_argument("-i", "--in",
+    pdb_ex_seqs.add_argument("-i", "--in-file",
                              help="Path to a directory containing PDB files",
                              type=str,
                              required=True)
@@ -81,6 +90,10 @@ if __name__ == "__main__":
                                  " sequences",
                             type=str,
                             required=True)
+    cdd_search.add_argument("-d", "--domains-file",
+                            help="Path to the intermediary domains file",
+                            type=str,
+                            required=True)
     cdd_search.add_argument("-o", "--out-file",
                             help="Path to the output file",
                             type=str,
@@ -95,7 +108,7 @@ if __name__ == "__main__":
     )
 
     generate_models.set_defaults(func=commands.generate_models)
-    generate_models.add_argument("-i", "--in",
+    generate_models.add_argument("-i", "--in-file",
                                  help="Path to a FASTA file containing all"
                                       " query sequences",
                                  type=str,
@@ -105,7 +118,7 @@ if __name__ == "__main__":
                                       " cdd-search",
                                  type=str,
                                  required=True)
-    generate_models.add_argument("-o", "--out",
+    generate_models.add_argument("-o", "--out-dir",
                                  help="Path to the output directory",
                                  type=str,
                                  required=True)
@@ -122,7 +135,7 @@ if __name__ == "__main__":
                          '\t--fasta')
 
     try:
-        args.func(args)
+        args.func(args, config)
     except AttributeError as e:
         print(e)
         parser.parse_args(['--help'])
