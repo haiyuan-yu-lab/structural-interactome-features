@@ -9,7 +9,7 @@ def run(fasta: Path,
         out_file: Path,
         cdd_bin: str):
     cmd = (f"{cdd_bin} -query {fasta} -db cddalias -seg no"
-           "-comp_based_stats 1 -evalue 0.01 -outfmt 7"
+           " -comp_based_stats 1 -evalue 0.01 -outfmt 7"
            f" > {domains_file}")
     log.info(f"calling: {cmd}")
     subprocess.call(cmd, shell=True)
