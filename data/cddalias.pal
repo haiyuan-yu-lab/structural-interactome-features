@@ -1,0 +1,9 @@
+#
+# RPSBLAST alias file
+#
+TITLE cddalias
+#
+DBLIST ./cdd/Cdd
+#
+STATS_TOTLEN    5000000
+STATS_NSEQ      21000

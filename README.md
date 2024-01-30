@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 - [AlphaFold](https://github.com/google-deepmind/alphafold)
 - [CD-HIT](https://github.com/weizhongli/cdhit)
-- [CDD-API](https://www.ncbi.nlm.nih.gov/Structure/cdd/cdd_help.shtml#BatchRPSBWebAPI) (we provide a script to perform the search, but you need to get your own API keys)
+- [CDD](https://www.ncbi.nlm.nih.gov/Structure/cdd/cdd_help.shtml#RPSBFtp) (we provide a script to perform the search, but you must install CDDs requirements and get the data)
 - [ska](https://honig.c2b2.columbia.edu/ska) (We provide bash scripts to perform the alignment, but we don't have permission to redistribute the software, you must obtain a licence to run this.)
 - [PeSTo](https://github.com/LBM-EPFL/PeSTo) (We provide bash scripts to run PeSTo, assuming you have installed a proper Docker image in your system. You may modify this by configuring the environment variables in the `.env` file)
 
@@ -44,6 +44,8 @@ such cases:
   recommend using a Docker container instead.
 - `CDHIT_BIN`: Similar to ska, this should point to the CD-HIT binary, or the
   `docker run` command to run. We simply take care of passing the arguments.
+- `CDD_BIN`: Similar to ska, this should point to the `rpsblast` binary, or the
+  `docker run` command to run. We simply take care of passing the arguments.
 
 ## Pipeline details
 
@@ -59,10 +61,15 @@ The pipeline consists on 2 main parts:
   templates (pairs of interacting proteins in PDB), as well as
   structurally-informed features for downstream tasks.
 
-### Getting the data
+### Getting the data 
 
 It is recommended that you get a copy of the [PDB database](https://www.rcsb.org)
 (click [here](https://www.wwpdb.org/ftp/pdb-ftp-sites) for mirror and FTP info)
+
+You also need to get a copy of [CDD](https://ftp.ncbi.nih.gov/pub/mmdb/cdd/cdd.tar.gz),
+then uncompress it and build the relevant BLAST databases (see instructions
+[here](https://ftp.ncbi.nih.gov/pub/mmdb/cdd/README)). We recommend runinng 
+everything using docker, as described [here](docs/CDD.md).
 
 ### Data pre-processing
 
