@@ -16,9 +16,6 @@ def cdd_search(args, config):
     assert "CDD_BIN" in config
 
     in_file = Path(args.in_file)
-    assert in_file.is_file()
-
-    # domains file
     domains_file = Path(args.domains_file)
     out_file = Path(args.out_file)
     run(in_file, out_file, domains_file, config["CDD_BIN"])
