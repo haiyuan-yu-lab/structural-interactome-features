@@ -37,15 +37,7 @@ if __name__ == "__main__":
     )
     cdhit_cluster.set_defaults(func=commands.cdhit_cluster)
     cdhit_cluster.add_argument("-i", "--in-file",
-                               help="Path to a directory containing PDB files",
-                               type=str,
-                               default="")
-    cdhit_cluster.add_argument("-s", "--sequence-in",
-                               help="Path to a directory containing sequences"
-                                    " that match PDB files. If this argument"
-                                    " is set, `--in` is ignored, and"
-                                    " no call is made to"
-                                    " pdb-extract-sequences",
+                               help="Path to a FASTA containing PDB sequences",
                                type=str,
                                default="")
     cdhit_cluster.add_argument("-p", "--perc-id",
@@ -57,31 +49,14 @@ if __name__ == "__main__":
                                type=str,
                                required=True)
 
-    # Extract PDB Sequences
-    pdb_ex_seqs = subparsers.add_parser(
-        "pdb-extract-sequences",
-        description="Extract PDB Sequences: given a directory of PDBs, extract"
-                    " the amino acid sequence of each chain",
-        help="The naming of each sequence will be"
-             " <pdb_id>-<modelno>-<chainname>"
-    )
-
-    pdb_ex_seqs.set_defaults(func=commands.pdb_ex_seqs)
-    pdb_ex_seqs.add_argument("-i", "--in-file",
-                             help="Path to a directory containing PDB files",
-                             type=str,
-                             required=True)
-    pdb_ex_seqs.add_argument("-o", "--out",
-                             help="Path to the output file",
-                             type=str,
-                             required=True)
-
     # CDD Search
     cdd_search = subparsers.add_parser(
         "cdd-search",
         description="CDD-Search: given a fasta file, identifies domains for"
                     " all sequences using the CDD-Search API",
-        help="Remember to set the appropriate enviornment variables"
+        help="Remember to set the appropriate enviornment variables, and to"
+             " ensure the paths are available to Docker if using BLAST from"
+             " a container"
     )
 
     cdd_search.set_defaults(func=commands.cdd_search)

@@ -73,6 +73,24 @@ everything using docker, as described [here](docs/CDD.md).
 
 ### Data pre-processing
 
+#### Domain identification
+
+Protein models are built from their full sequences, as well as the sequences of
+their domains. To identify such domains, please run: 
+
+```bash
+python SIF.py cdd-search -i sequences.fasta -o data/domains.tsv -d data/domains.tmp
+```
+
+where `sequences.fasta` contains the full sequences of every protein you want
+to consider, `data/domains.tsv` is the path to a file where the domains
+will be stored, and `data/domains.tmp` is a file where the raw output from 
+`rpsblast` will be stored.
+
+> __Important:__ if you're using Docker for `CDD_BIN`, remember that 
+> `sequences.fasta` needs to be a path relative to the configured volume, while
+> the other paths are relative to the host.
+
 #### PDB Clustering
 
 This relies on [CD-HIT](https://github.com/weizhongli/cdhit), used to generate
@@ -82,34 +100,39 @@ neighborhood without having to scan every protein in existence.
 If you need the full structural neighborhood, it is convenient to cluster every
 sequence and domain found in the PDB database.
 
-If `data/pdb/` is the directory containing the PDB files, please run the 
-following commands to generate the clusters:
-
+First, download the [PDB sequences](https://files.rcsb.org/pub/pdb/derived_data/pdb_seqres.txt.gz)
+and run the following to uncompress the file:
 ```bash
-python SIF.py cdhit-cluster --in data/pdb/ --out data/pdb-clusters/ --perc-id 60
+gunzip pdb_seqres.txt
 ```
-
-where `data/pdb-clusters/` is a directory where the calculated clusters will be
+and then to keep only protein sequences
+```bash
+awk '/^>/ {printit = /:protein/} printit {print}' pdb_seqres.txt > pdb_prot_seq.fasta
+```
+From the previous section, we also need to identify the domains on these 
+sequences. Run:
+```bash
+python SIF.py cdd-search -i pdb_prot_seq.fasta -o pdb-domains.tsv -d pdb-domains.tmp
+```
+Finally, to cluster the domains, use
+```bash
+python SIF.py cdhit-cluster --in-file filtered.fasta --out-file pdb-clusters --perc-id 60
+```
+where `pdb-clusters` is a file where the calculated clusters will be
 stored, and `--perc-id` represents the percent identity threshold used to cluster
 the sequences.
 
 > Implementation note: CD-HIT does not cluster PDB structures directly, and 
-> this script internally runs the `pdb-extract-sequences` command first. You 
-> may benefit from running this first, and using `--sequence-in` instead of
-> `--in` when running `cdhit-cluster` to save time on subsequent runs.
+> this script internally filters the sequences in
+> [the PDB provided sequences](https://files.rcsb.org/pub/pdb/derived_data/pdb_seqres.txt.gz)
+> by using only those tagged as `:protein`. If you're using a different FASTA
+> header format and don't need this skipping step, please add `--skip-pdb-filter`
+> to the command above. 
+>
+> Also, CD-HIT will generate intermediary files, and if you're using Docker, 
+> these will be placed on the output path, which is relative to the current
+> working directory of the container.
 
-#### Domain identification
-
-Protein models are built from their full sequences, as well as the sequences of
-their domains. To identify such domains, please run: 
-
-```bash
-python SIF.py cdd-search --in sequences.fasta --out data/domains/
-```
-
-where `sequences.fasta` contains the full sequences of every protein you want
-to consider, and `data/domains/` is the path to a directory where the domains
-will be stored.
 
 #### AlphaFold Modeling
 
@@ -120,13 +143,17 @@ installed and accessible, and you must configure the correct command into
 are provided in the repository). Then simply run:
 
 ```bash
-python SIF.py generate-models --in sequences.fasta --domains data/domains/ --out data/structural-models/
+python SIF.py generate-models -i sequences.fasta -d domains.tsv --out data/structural-models/
 ```
 
 where `sequences.fasta` contains the full sequences of every protein you want
-to consider, `data/domains/` is the path to a directory where the domains
+to consider, `data/domains.tsv` is the path to a file where the domains
 are stored, and `data/structural-models/` is the path to a directory where the 
 models will be stored.
+
+> __Important:__ if you're using Docker for `AF_PREDICT`, remember that 
+> `sequences.fasta` and `data/domains.tsv` needs to be a path relative to the
+> configured volume, while the other paths are relative to the host.
 
 ### Structural Neighbors
 

@@ -4,11 +4,12 @@ log = logging.getLogger(__name__)
 
 
 def cdhit_cluster(args, config):
-    pass
+    from siflib.io.cdhit_cluster import run
+    assert "CDHIT_BIN" in config
 
-
-def pdb_ex_seqs(args, config):
-    pass
+    in_file = Path(args.in_file)
+    out_file = Path(args.out_file)
+    run(in_file, out_file, config["CDHIT_BIN"])
 
 
 def cdd_search(args, config):
