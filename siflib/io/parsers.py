@@ -81,4 +81,57 @@ def parse_fasta(fasta_file: Path,
 
 
 def parse_cd_hit(cd_hit_file: Path) -> Dict:
-    pass
+    """
+    Parses the output of rpsblast
+
+    Parameters
+    ----------
+    cd_hit_file : Path
+        Path to the output file produced by rpsblast
+
+    Returns
+    -------
+    Dict
+        A dictionary with the following structure:
+        {
+            "query acc.ver": [{
+                "subject acc.ver": "..."
+                "% identity": "...",
+                "alignment length": "...",
+                "mistmatches": "...",
+                "gap opens": "...",
+                "q. start": "...",
+                "q. end": "...",
+                "s. start": "...",
+                "s. end": "...",
+                "evalue": "...",
+                "bit socre": "..."
+            },
+            ...],
+            ...
+        }
+    """
+    assert cd_hit_file.is_file()
+    domains = {}
+    with cd_hit_file.open() as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            (qacc, sacc, pid, al, mism,
+             gop, qs, qe, ss, se, ev, bs) = line.strip().split("\t")
+            if qacc not in domains.keys():
+                domains[qacc] = []
+            domains[qacc].append({
+                "subject acc.ver": sacc,
+                "% identity": float(pid),
+                "alignment length": int(al),
+                "mistmatches": int(mism),
+                "gap opens": int(gop),
+                "q. start": int(qs),
+                "q. end": int(qe),
+                "s. start": int(ss),
+                "s. end": int(se),
+                "evalue": float(ev),
+                "bit socre": float(bs)
+            })
+    return domains

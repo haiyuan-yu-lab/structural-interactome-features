@@ -26,75 +26,28 @@ if __name__ == "__main__":
         help="sub-command help",
         dest="subcommand")
 
-    # CD-HIT Clustering
-    cdhit_cluster = subparsers.add_parser(
-        "chhit-cluster",
-        description="CD-HIT cluster: invokes CD-HIT to cluster all sequences"
-                    " in a directory",
-        help="CD-HIT clustering is intended to cluster all the PDB files into"
-             " a set of representative candidates to ensure a faster"
-             " structural neighborhood calculation."
-    )
-    cdhit_cluster.set_defaults(func=commands.cdhit_cluster)
-    cdhit_cluster.add_argument("-i", "--in-file",
-                               help="Path to a FASTA containing PDB sequences",
-                               type=str,
-                               default="")
-    cdhit_cluster.add_argument("-p", "--perc-id",
-                               help="Percent identity threshold",
-                               type=int,
-                               default=60)
-    cdhit_cluster.add_argument("-o", "--out",
-                               help="Path to the output directory",
-                               type=str,
-                               required=True)
-
-    # CDD Search
-    cdd_search = subparsers.add_parser(
-        "cdd-search",
-        description="CDD-Search: given a fasta file, identifies domains for"
-                    " all sequences using the CDD-Search API",
-        help="Remember to set the appropriate enviornment variables, and to"
-             " ensure the paths are available to Docker if using BLAST from"
-             " a container"
+    # Parse CDD
+    extract_domains = subparsers.add_parser(
+        "extract-domains",
+        description="Given the output of rpsblast and the query FASTA used"
+                    " during the searh, extract the sequences for each domain"
+                    " found in the search.",
+        help="Remember to ensure the FASTA file and the rpsblast files are"
+             " related."
     )
 
-    cdd_search.set_defaults(func=commands.cdd_search)
-    cdd_search.add_argument("-i", "--in-file",
-                            help="Path to a FASTA file containing all query"
-                                 " sequences",
-                            type=str,
-                            required=True)
-    cdd_search.add_argument("-d", "--domains-file",
-                            help="Path to the intermediary domains file",
-                            type=str,
-                            required=True)
-    cdd_search.add_argument("-o", "--out-file",
-                            help="Path to the output file",
-                            type=str,
-                            required=True)
-
-    # Generate Models
-    generate_models = subparsers.add_parser(
-        "generate-models",
-        description="Generate Models: given a fasta file, and domains, invokes"
-                    " AlphaFold to generate structures for all such sequences",
-        help="Remember to set the appropriate enviornment variables"
-    )
-
-    generate_models.set_defaults(func=commands.generate_models)
-    generate_models.add_argument("-i", "--in-file",
-                                 help="Path to a FASTA file containing all"
-                                      " query sequences",
+    extract_domains.set_defaults(func=commands.extract_domains)
+    extract_domains.add_argument("-i", "--in-file",
+                                 help="Path to the results of CDD search",
                                  type=str,
                                  required=True)
-    generate_models.add_argument("-d", "--domains",
-                                 help="Path to the domains calculated using"
-                                      " cdd-search",
+    extract_domains.add_argument("-f", "--fasta-file",
+                                 help="Path to the target sequences used in"
+                                 " CDD search (FASTA FORMAT).",
                                  type=str,
                                  required=True)
-    generate_models.add_argument("-o", "--out-dir",
-                                 help="Path to the output directory",
+    extract_domains.add_argument("-o", "--out-file",
+                                 help="Path to the output file (FASTA format)",
                                  type=str,
                                  required=True)
 
