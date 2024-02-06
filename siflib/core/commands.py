@@ -9,3 +9,9 @@ def extract_domains(args, config):
     fasta_file = Path(args.fasta_file)
     out_file = Path(args.out_file)
     run(in_file, fasta_file, out_file)
+
+
+def extract_chains(args, config):
+    from siflib.io.extract_chains import run
+    in_dir = Path(args.in_dir)
+    run(in_dir)

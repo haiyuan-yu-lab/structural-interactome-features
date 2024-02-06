@@ -26,14 +26,12 @@ if __name__ == "__main__":
         help="sub-command help",
         dest="subcommand")
 
-    # Parse CDD
+    # Extract Domains
     extract_domains = subparsers.add_parser(
         "extract-domains",
-        description="Given the output of rpsblast and the query FASTA used"
-                    " during the searh, extract the sequences for each domain"
-                    " found in the search.",
-        help="Remember to ensure the FASTA file and the rpsblast files are"
-             " related."
+        help="Given the output of rpsblast and the query FASTA used"
+             " during the searh, extract the sequences for each domain"
+             " found in the search.",
     )
 
     extract_domains.set_defaults(func=commands.extract_domains)
@@ -50,6 +48,23 @@ if __name__ == "__main__":
                                  help="Path to the output file (FASTA format)",
                                  type=str,
                                  required=True)
+
+    # Extract Chains
+    extract_chains = subparsers.add_parser(
+        "extract-chains",
+        help="Given a directory, recursively read all .pdb and .ent.gz"
+             " files and extracts individual chains into pdb files. All"
+             " files will be named <pdb_id>_<chain_id>.pdb, even when"
+             " .ent.gz files are being processed. Files will be saved on"
+             " the same subdirectory as the corresponding input file.",
+    )
+
+    extract_chains.set_defaults(func=commands.extract_chains)
+    extract_chains.add_argument("-i", "--in-dir",
+                                help="Path to a directory containing PDB files"
+                                     " with .pdb or .ent.gz extensions",
+                                type=str,
+                                required=True)
 
     # Parse the arguments and route the function call
     args = parser.parse_args()
