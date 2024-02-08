@@ -44,7 +44,7 @@ def run_ska(pdb1: str,
                 if line.startswith("Structure alignment error"):
                     break
                 elif line.startswith("PSD"):
-                    psd_ab = float(line.strip().split()[-1])
+                    psd_ba = float(line.strip().split()[-1])
     resfile_ab.unlink()
     resfile_ba.unlink()
     return pdb1, pdb2, psd_ab, psd_ba
