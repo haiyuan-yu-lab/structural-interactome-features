@@ -37,7 +37,7 @@ def run_ska(pdb1: str,
 
     if psd_ab < 10:
         resfile_ba = tmp_dir / f"{pdb2}-vs-{pdb1}"
-        cmd = f"{skabin} {pdb2_path} {pdb2_path} &> {resfile_ba}"
+        cmd = f"{skabin} {pdb2_path} {pdb1_path} &> {resfile_ba}"
         subprocess.call(cmd, shell=True, env=env)
         with resfile_ba.open() as rba:
             for line in rba:
