@@ -70,11 +70,14 @@ def run(query_info: Path,
         database_info: Path,
         output_file: Path,
         tmp_dir: Path,
+        submat: str,
+        trolltop: str,
         psd_threshold: float):
     results = []
+    env = {"TROLLTOP": trolltop, "SUBMAT": submat}
     with ProcessPoolExecutor() as executor:
         futures = {
-            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir)
+            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, env)
             for i1, p1, i2, p2 in generate_ska_pairs(query_info, database_info)
         }
         completed = 0
@@ -105,9 +108,15 @@ if __name__ == "__main__":
                         help="Path to a directory to store temporary results")
     parser.add_argument("-p", "--psd-threshold", required=True,
                         help="PSD threshold to use")
+    parser.add_argument("-s", "--submat", required=True,
+                        help="value for the SUBMAT environment variable")
+    parser.add_argument("-r", "--trolltop", required=True,
+                        help="value for the TROLLTOP environment variable")
     args = parser.parse_args()
     run(Path(args.query_info),
         Path(args.database_info),
         Path(args.output_file),
         Path(args.tmp_dir),
+        args.submat,
+        args.trolltop,
         args.psd_threshold)
