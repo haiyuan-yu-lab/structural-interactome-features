@@ -50,17 +50,7 @@ def run_ska(pdb1: str,
     return pdb1, pdb2, psd_ab, psd_ba
 
 
-def generate_ska_pairs(query_info: Path, database_info: Path):
-    query = {}
-    with query_info.open() as qi:
-        for line in qi:
-            pdb_id, pdb_path = line.strip().split()
-            query[pdb_id] = pdb_path
-    database = {}
-    with database_info.open() as di:
-        for line in di:
-            pdb_id, pdb_path = line.strip().split()
-            database[pdb_id] = pdb_path
+def generate_ska_pairs(query: Dict, database: Dict):
 
     for i1, p1 in query.items():
         for i2, p2 in database.items():
@@ -75,21 +65,39 @@ def run(query_info: Path,
         trolltop: str,
         skabin: str,
         psd_threshold: float,
-        sentinel: int = 10):
+        batch_size: int = 1000):
     results = []
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
+    logger.info("collecting query info...")
+    query = {}
+    with query_info.open() as qi:
+        for line in qi:
+            pdb_id, pdb_path = line.strip().split()
+            query[pdb_id] = pdb_path
+    database = {}
+    logger.info("collecting database info...")
+    with database_info.open() as di:
+        for line in di:
+            pdb_id, pdb_path = line.strip().split()
+            database[pdb_id] = pdb_path
+    total = len(database) * len(query) * 2
     with ProcessPoolExecutor() as executor:
-        futures = {
-            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, skabin,  env)
-            for i1, p1, i2, p2 in generate_ska_pairs(query_info, database_info)
-        }
-        completed = 0
+        batch = []
+        curr_batch = 1
+        for i, (i1, p1, i2, p2) in enumerate(
+                generate_ska_pairs(query, database), start=1):
+            batch.append(
+                executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, skabin,  env)
+            )
 
-        for future in as_completed(futures):
-            results.append(future.result())
-            completed += 1
-            if completed % 100 == 0:
-                logger.info(f"completed {completed} runs")
+            if i % batch_size == 0 or i == total:
+                completed = 0
+                for future in as_completed(batch):
+                    results.append(future.result())
+                    if completed % 100 == 0:
+                        logger.info(f"done: {i} runs, at batch {curr_batch}")
+                curr_batch += 1
+                batch = []
 
     with output_file.open("w") as of:
         of.write("pdb_a\tpdb_b\tPSD(a,b)\tPSD(b,a)\n")
@@ -118,10 +126,10 @@ if __name__ == "__main__":
                         help="Path to the ska binary")
     parser.add_argument("-r", "--trolltop", required=True,
                         help="value for the TROLLTOP environment variable")
-    parser.add_argument("--sentinel",
-                        default=10,
+    parser.add_argument("--batch_size",
+                        default=1000,
                         type=int,
-                        help="value for the TROLLTOP environment variable")
+                        help="Batch size for parallel computation")
     args = parser.parse_args()
     run(Path(args.query_info),
         Path(args.database_info),
@@ -131,4 +139,4 @@ if __name__ == "__main__":
         args.trolltop,
         args.bin,
         args.psd_threshold,
-        args.sentinel)
+        args.batch_size)
