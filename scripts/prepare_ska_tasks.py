@@ -20,12 +20,13 @@ def run_ska(pdb1: str,
             pdb2: str,
             pdb2_path: str,
             tmp_dir: Path,
+            bin: str,
             env: Dict) -> Tuple[str, str, float, float]:
     psd_ab = float("inf")
     psd_ba = float("inf")
 
     resfile_ab = tmp_dir / f"{pdb1}-vs-{pdb2}"
-    cmd = f"ska {pdb1_path} {pdb2_path} > {resfile_ab}"
+    cmd = f"{bin} {pdb1_path} {pdb2_path} > {resfile_ab}"
     subprocess.call(cmd, shell=True, env=env)
     with resfile_ab.open() as rab:
         for line in rab:
@@ -36,7 +37,7 @@ def run_ska(pdb1: str,
 
     if psd_ab < 10:
         resfile_ba = tmp_dir / f"{pdb1}-vs-{pdb2}"
-        cmd = f"ska {pdb2_path} {pdb2_path} > {resfile_ba}"
+        cmd = f"{bin} {pdb2_path} {pdb2_path} > {resfile_ba}"
         subprocess.call(cmd, shell=True, env=env)
         with resfile_ba.open() as rba:
             for line in rba:
@@ -72,12 +73,13 @@ def run(query_info: Path,
         tmp_dir: Path,
         submat: str,
         trolltop: str,
+        bin: str,
         psd_threshold: float):
     results = []
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
     with ProcessPoolExecutor() as executor:
         futures = {
-            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, env)
+            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, bin,  env)
             for i1, p1, i2, p2 in generate_ska_pairs(query_info, database_info)
         }
         completed = 0
@@ -110,6 +112,8 @@ if __name__ == "__main__":
                         help="PSD threshold to use")
     parser.add_argument("-s", "--submat", required=True,
                         help="value for the SUBMAT environment variable")
+    parser.add_argument("-b", "--bin", required=True,
+                        help="Path to the ska binary")
     parser.add_argument("-r", "--trolltop", required=True,
                         help="value for the TROLLTOP environment variable")
     args = parser.parse_args()
@@ -119,4 +123,5 @@ if __name__ == "__main__":
         Path(args.tmp_dir),
         args.submat,
         args.trolltop,
+        args.bin,
         args.psd_threshold)
