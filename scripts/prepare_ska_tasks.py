@@ -20,13 +20,13 @@ def run_ska(pdb1: str,
             pdb2: str,
             pdb2_path: str,
             tmp_dir: Path,
-            bin: str,
+            skabin: str,
             env: Dict) -> Tuple[str, str, float, float]:
     psd_ab = float("inf")
     psd_ba = float("inf")
 
     resfile_ab = tmp_dir / f"{pdb1}-vs-{pdb2}"
-    cmd = f"{bin} {pdb1_path} {pdb2_path} > {resfile_ab}"
+    cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {resfile_ab}"
     subprocess.call(cmd, shell=True, env=env)
     with resfile_ab.open() as rab:
         for line in rab:
@@ -37,7 +37,7 @@ def run_ska(pdb1: str,
 
     if psd_ab < 10:
         resfile_ba = tmp_dir / f"{pdb1}-vs-{pdb2}"
-        cmd = f"{bin} {pdb2_path} {pdb2_path} > {resfile_ba}"
+        cmd = f"{skabin} {pdb2_path} {pdb2_path} &> {resfile_ba}"
         subprocess.call(cmd, shell=True, env=env)
         with resfile_ba.open() as rba:
             for line in rba:
@@ -73,13 +73,14 @@ def run(query_info: Path,
         tmp_dir: Path,
         submat: str,
         trolltop: str,
-        bin: str,
-        psd_threshold: float):
+        skabin: str,
+        psd_threshold: float,
+        sentinel: int = 10):
     results = []
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
     with ProcessPoolExecutor() as executor:
         futures = {
-            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, bin,  env)
+            executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, skabin,  env)
             for i1, p1, i2, p2 in generate_ska_pairs(query_info, database_info)
         }
         completed = 0
@@ -87,8 +88,9 @@ def run(query_info: Path,
         for future in as_completed(futures):
             results.append(future.result())
             completed += 1
-            if completed % 10000 == 0:
+            if completed % 100 == 0:
                 logger.info(f"completed {completed} runs")
+
     with output_file.open("w") as of:
         of.write("pdb_a\tpdb_b\tPSD(a,b)\tPSD(b,a)\n")
         for p1, p2, psd1, psd2 in results:
@@ -116,6 +118,10 @@ if __name__ == "__main__":
                         help="Path to the ska binary")
     parser.add_argument("-r", "--trolltop", required=True,
                         help="value for the TROLLTOP environment variable")
+    parser.add_argument("--sentinel",
+                        default=10,
+                        type=int,
+                        help="value for the TROLLTOP environment variable")
     args = parser.parse_args()
     run(Path(args.query_info),
         Path(args.database_info),
@@ -124,4 +130,5 @@ if __name__ == "__main__":
         args.submat,
         args.trolltop,
         args.bin,
-        args.psd_threshold)
+        args.psd_threshold,
+        args.sentinel)
