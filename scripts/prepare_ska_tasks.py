@@ -30,3 +30,6 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output-file", required=True,
                         help="Path to the output file")
     args = parser.parse_args()
+    run(Path(args.query_info),
+        Path(args.database_info),
+        Path(args.output_file))
