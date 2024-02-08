@@ -15,8 +15,8 @@ def run(query_info: Path, database_info: Path, output_file: Path) -> None:
     with output_file.open("w") as of:
         for i1, p1 in query.items():
             for i2, p2 in database.items():
-                of.write(f"ska {p1} {p2} > {i1}-vs-{i2}\n")
-                of.write(f"ska {p2} {p1} > {i2}-vs-{i1}\n")
+                of.write(f"ska {p1} {p2} > ./results/{i1}/{i1}-vs-{i2}\n")
+                of.write(f"ska {p2} {p1} > ./results/{i1}/{i2}-vs-{i1}\n")
 
 
 if __name__ == "__main__":
