@@ -34,6 +34,7 @@ def run_ska(pdb1: str,
                 break
             elif line.startswith("PSD"):
                 psd_ab = float(line.strip().split()[-1])
+    resfile_ab.unlink()
 
     if psd_ab < 10:
         resfile_ba = tmp_dir / f"{pdb2}-vs-{pdb1}"
@@ -45,8 +46,8 @@ def run_ska(pdb1: str,
                     break
                 elif line.startswith("PSD"):
                     psd_ba = float(line.strip().split()[-1])
-    resfile_ab.unlink()
-    resfile_ba.unlink()
+        resfile_ba.unlink()
+
     return pdb1, pdb2, psd_ab, psd_ba
 
 
