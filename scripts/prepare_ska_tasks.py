@@ -27,7 +27,7 @@ def run_ska(pdb1: str,
     psd_ba = float("inf")
 
     cmd = f"{skabin} {pdb1_path} {pdb2_path}"
-    pab = subprocess.call(cmd, shell=True, env=env, stdout=PIPE, stderr=STDOUT)
+    pab = subprocess.run(cmd, shell=True, env=env, stdout=PIPE, stderr=STDOUT)
     rab = pab.stdout
     for line in rab.split("\n"):
         if line.startswith("Structure alignment error"):
