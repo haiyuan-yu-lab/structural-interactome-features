@@ -37,7 +37,7 @@ def run_ska(pdb1: str,
 
     if psd_ab < 10:
         cmd = f"{skabin} {pdb2_path} {pdb1_path}"
-        pba = subprocess.call(cmd, shell=True, env=env,
+        pba = subprocess.run(cmd, shell=True, env=env,
                               stdout=PIPE, stderr=STDOUT)
         rba = pba.stdout
         for line in rba.split("\n"):
