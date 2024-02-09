@@ -92,11 +92,10 @@ def run(query_info: Path,
             )
 
             if i % batch_size == 0 or i == total:
-                completed = 0
                 for future in as_completed(batch):
                     results.append(future.result())
-                    if completed % 100 == 0:
-                        logger.info(f"done: {i} runs, at batch {curr_batch}")
+                logger.info(f"done: {i} runs, at batch {curr_batch}")
+                logger.info(f"results: {len(results)}")
                 curr_batch += 1
                 batch = []
 
