@@ -3,6 +3,7 @@ import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Tuple, Dict
 import subprocess
+from subprocess import PIPE, STDOUT
 
 logger = logging.getLogger('SKA-parallel-runner')
 logger.setLevel(logging.INFO)
@@ -25,28 +26,25 @@ def run_ska(pdb1: str,
     psd_ab = float("inf")
     psd_ba = float("inf")
 
-    resfile_ab = tmp_dir / f"{pdb1}-vs-{pdb2}"
-    cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {resfile_ab}"
-    subprocess.call(cmd, shell=True, env=env)
-    with resfile_ab.open() as rab:
-        for line in rab:
+    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
+    pab = subprocess.call(cmd, shell=True, env=env, stdout=PIPE, stderr=STDOUT)
+    rab = pab.stdout
+    for line in rab.split("\n"):
+        if line.startswith("Structure alignment error"):
+            break
+        elif line.startswith("PSD"):
+            psd_ab = float(line.strip().split()[-1])
+
+    if psd_ab < 10:
+        cmd = f"{skabin} {pdb2_path} {pdb1_path}"
+        pba = subprocess.call(cmd, shell=True, env=env,
+                              stdout=PIPE, stderr=STDOUT)
+        rba = pba.stdout
+        for line in rba.split("\n"):
             if line.startswith("Structure alignment error"):
                 break
             elif line.startswith("PSD"):
-                psd_ab = float(line.strip().split()[-1])
-    resfile_ab.unlink()
-
-    if psd_ab < 10:
-        resfile_ba = tmp_dir / f"{pdb2}-vs-{pdb1}"
-        cmd = f"{skabin} {pdb2_path} {pdb1_path} &> {resfile_ba}"
-        subprocess.call(cmd, shell=True, env=env)
-        with resfile_ba.open() as rba:
-            for line in rba:
-                if line.startswith("Structure alignment error"):
-                    break
-                elif line.startswith("PSD"):
-                    psd_ba = float(line.strip().split()[-1])
-        resfile_ba.unlink()
+                psd_ba = float(line.strip().split()[-1])
 
     return pdb1, pdb2, psd_ab, psd_ba
 
