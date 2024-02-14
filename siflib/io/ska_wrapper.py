@@ -71,9 +71,9 @@ def run(query_info: Path,
         results = {}
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
             batch.append(
-                executor.submit(run_ska_file(query_element, query_path,
-                                             pdb_id, pdb_path, output_dir,
-                                             skabin, env))
+                    executor.submit(run_ska(query_element, query_path,
+                                            pdb_id, pdb_path, output_dir,
+                                            skabin, env))
             )
             if i % batch_size == 0 or i == total:
                 log.info(f"submitted {i} jobs, current batch: {curr_batch}")
