@@ -11,24 +11,30 @@ def run_ska(pdb1: str,
             pdb1_path: str,
             pdb2: str,
             pdb2_path: str,
-            out_dir: Path,
             skabin: str,
-            env: Dict) -> None:
+            env: Dict) -> str:
+    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
+    p = subprocess.run(cmd, shell=True, env=env,
+                       stdout=PIPE, stderr=STDOUT)
+    return p.stdout
+
+
+# This implementation writes each result to an individual file
+def run_ska_file(pdb1: str,
+                 pdb1_path: str,
+                 pdb2: str,
+                 pdb2_path: str,
+                 out_dir: Path,
+                 skabin: str,
+                 env: Dict) -> None:
     subdir = out_dir / pdb1[1:3]
     subdir.mkdir(exist_ok=True)
     outfile = subdir / f"{pdb1}-vs-{pdb2}"
-    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
     if not outfile.exists():
         with outfile.open("w") as of:
-            subprocess.run(cmd, shell=True, env=env, stdout=of, stderr=STDOUT)
-
-    subdir = out_dir / pdb2[1:3]
-    subdir.mkdir(exist_ok=True)
-    outfile = subdir / f"{pdb2}-vs-{pdb1}"
-    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
-    if not outfile.exists():
-        with outfile.open("w") as of:
-            subprocess.run(cmd, shell=True, env=env, stdout=of, stderr=STDOUT)
+            of.write(run_ska(pdb1, pdb1_path,
+                             pdb2, pdb2_path,
+                             skabin, env))
 
 
 def run(query_info: Path,
@@ -62,11 +68,69 @@ def run(query_info: Path,
         batch = []
         overall_progress = 0
         curr_batch = 1
+        results = {}
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
             batch.append(
-                executor.submit(run_ska(query_element, query_path,
-                                        pdb_id, pdb_path, output_dir,
-                                        skabin, env))
+                executor.submit(run_ska_file(query_element, query_path,
+                                             pdb_id, pdb_path, output_dir,
+                                             skabin, env))
+            )
+            if i % batch_size == 0 or i == total:
+                log.info(f"submitted {i} jobs, current batch: {curr_batch}")
+                for future in as_completed(batch):
+                    overall_progress += 1
+                    results[pdb_id] = future.result()
+                log.info(f"{overall_progress} runs at batch {curr_batch}")
+                log.info(f"{overall_progress/total*100:.2f}%")
+                curr_batch += 1
+                batch = []
+    outfile = output_dir / f"{query_element}.ska"
+    log.info(f"Writing results to {outfile}")
+    with outfile.open("w") as of:
+        for key, output_str in results.items():
+            of.write(f"SKA: query={query_element}, subject={key}\n")
+            of.write(f"{output_str}\n")
+    log.info("Done")
+
+
+# This is an earlier version that writes each result to a file, which may
+# result in a I/O bottleneck
+def run_file(query_info: Path,
+             database_info: Path,
+             output_dir: Path,
+             submat: str,
+             trolltop: str,
+             skabin: str,
+             array_idx: int = 0,
+             batch_size: int = 1000):
+    env = {"TROLLTOP": trolltop, "SUBMAT": submat}
+
+    query = {}
+    with query_info.open() as qi:
+        for line in qi:
+            pdb_id, pdb_path = line.strip().split()
+            query[pdb_id] = pdb_path
+    query_list = sorted(query.keys())
+    query_element = query_list[array_idx]
+    database = {}
+    log.info("collecting database info...")
+    with database_info.open() as di:
+        for line in di:
+            pdb_id, pdb_path = line.strip().split()
+            database[pdb_id] = pdb_path
+    total = len(database)
+    log.info(f"query = {query_element}")
+    log.info(f"Total = {total}")
+    with ProcessPoolExecutor() as executor:
+        query_path = query[query_element]
+        batch = []
+        overall_progress = 0
+        curr_batch = 1
+        for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
+            batch.append(
+                    executor.submit(run_ska_file(query_element, query_path,
+                                                 pdb_id, pdb_path, output_dir,
+                                                 skabin, env))
             )
             if i % batch_size == 0 or i == total:
                 log.info(f"submitted {i} jobs, current batch: {curr_batch}")
