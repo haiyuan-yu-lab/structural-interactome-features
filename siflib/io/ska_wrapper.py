@@ -33,7 +33,6 @@ def run(query_info: Path,
         submat: str,
         trolltop: str,
         skabin: str,
-        psd_threshold: float,
         array_idx: int = 0,
         batch_size: int = 1000):
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}

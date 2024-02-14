@@ -80,8 +80,6 @@ if __name__ == "__main__":
                         help="Path to a query map from ID to Path (tsv)")
     ska_db.add_argument("-o", "--output-dir", required=True,
                         help="Path to the output directory")
-    ska_db.add_argument("-p", "--psd-threshold", required=True,
-                        help="PSD threshold to use")
     ska_db.add_argument("-s", "--submat", required=True,
                         help="value for the SUBMAT environment variable")
     ska_db.add_argument("-b", "--bin", required=True,
@@ -90,7 +88,7 @@ if __name__ == "__main__":
                         help="value for the TROLLTOP environment variable")
     ska_db.add_argument("-i", "--array-idx", type=int, required=True,
                         help="Index of the query to run")
-    ska_db.add_argument("-b", "--batch-size", type=int, required=True,
+    ska_db.add_argument("-n", "--batch-size", type=int, required=True,
                         help="Batch size for the inner loop")
     # Parse the arguments and route the function call
     args = parser.parse_args()

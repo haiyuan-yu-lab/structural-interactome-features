@@ -25,6 +25,5 @@ def ska_database(args, config):
         args.submat,
         args.trolltop,
         args.bin,
-        args.psd_threshold,
         args.array_idx,
         args.batch_size)
