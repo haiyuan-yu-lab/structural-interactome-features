@@ -18,13 +18,13 @@ def run_ska(pdb1: str,
     subdir.mkdir(exist_ok=True)
     outfile = subdir / f"{pdb1}-vs-{pdb2}"
     cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
-    subprocess.run(cmd, shell=True, env=env)
+    subprocess.run(cmd, shell=True, env=env, stdout=outfile, stderr=STDOUT)
 
     subdir = out_dir / pdb2[1:3]
     subdir.mkdir(exist_ok=True)
     outfile = subdir / f"{pdb2}-vs-{pdb1}"
     cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
-    subprocess.run(cmd, shell=True, env=env)
+    subprocess.run(cmd, shell=True, env=env, stdout=outfile, stderr=STDOUT)
 
 
 def run(query_info: Path,
