@@ -16,11 +16,11 @@ def run_ska(pdb1: str,
             env: Dict) -> Tuple[str, str, float, float]:
     subdir = out_dir / pdb1[1:3]
     subdir.mkdir(exist_ok=True)
-    outfile = out_dir / f"{pdb1}-vs-{pdb2}"
+    outfile = subdir / f"{pdb1}-vs-{pdb2}"
     cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
     subprocess.run(cmd, shell=True, env=env, stdout=PIPE, stderr=STDOUT)
 
-    subdir = out_dir / pdb2[1:3]
+    subdir = subdir / pdb2[1:3]
     subdir.mkdir(exist_ok=True)
     outfile = out_dir / f"{pdb2}-vs-{pdb1}"
     cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
