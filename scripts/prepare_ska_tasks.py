@@ -1,9 +1,8 @@
 from pathlib import Path
 import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import Tuple, Dict
-import subprocess
-from subprocess import PIPE, STDOUT
+from typing import Dict
+from siflib.io.ska_wrapper import run_ska_psd
 
 logger = logging.getLogger('SKA-parallel-runner')
 logger.setLevel(logging.INFO)
@@ -14,39 +13,6 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-
-
-def run_ska(pdb1: str,
-            pdb1_path: str,
-            pdb2: str,
-            pdb2_path: str,
-            tmp_dir: Path,
-            skabin: str,
-            env: Dict) -> Tuple[str, str, float, float]:
-    psd_ab = float("inf")
-    psd_ba = float("inf")
-
-    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
-    pab = subprocess.run(cmd, shell=True, env=env, stdout=PIPE, stderr=STDOUT)
-    rab = pab.stdout
-    for line in rab.split("\n"):
-        if line.startswith("Structure alignment error"):
-            break
-        elif line.startswith("PSD"):
-            psd_ab = float(line.strip().split()[-1])
-
-    if psd_ab < 10:
-        cmd = f"{skabin} {pdb2_path} {pdb1_path}"
-        pba = subprocess.run(cmd, shell=True, env=env,
-                              stdout=PIPE, stderr=STDOUT)
-        rba = pba.stdout
-        for line in rba.split("\n"):
-            if line.startswith("Structure alignment error"):
-                break
-            elif line.startswith("PSD"):
-                psd_ba = float(line.strip().split()[-1])
-
-    return pdb1, pdb2, psd_ab, psd_ba
 
 
 def generate_ska_pairs(query: Dict, database: Dict):
@@ -86,7 +52,7 @@ def run(query_info: Path,
         for i, (i1, p1, i2, p2) in enumerate(
                 generate_ska_pairs(query, database), start=1):
             batch.append(
-                executor.submit(run_ska, i1, p1, i2, p2, tmp_dir, skabin,  env)
+                executor.submit(run_ska_psd, i1, p1, i2, p2, skabin, env)
             )
 
             if i % batch_size == 0 or i == total:

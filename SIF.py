@@ -66,6 +66,32 @@ if __name__ == "__main__":
                                 type=str,
                                 required=True)
 
+    # Make SKA database
+    ska_db = subparsers.add_parser(
+        "ska-db",
+        help="given two lists of PDB files and their respective Paths, uses"
+             " ska to build a pairwise database in an output directory.",
+    )
+
+    ska_db.set_defaults(func=commands.ska_database)
+    ska_db.add_argument("-q", "--query-info", required=True,
+                        help="Path to a query map from ID to Path (tsv)")
+    ska_db.add_argument("-d", "--database-info", required=True,
+                        help="Path to a query map from ID to Path (tsv)")
+    ska_db.add_argument("-o", "--output-dir", required=True,
+                        help="Path to the output directory")
+    ska_db.add_argument("-p", "--psd-threshold", required=True,
+                        help="PSD threshold to use")
+    ska_db.add_argument("-s", "--submat", required=True,
+                        help="value for the SUBMAT environment variable")
+    ska_db.add_argument("-b", "--bin", required=True,
+                        help="Path to the ska binary")
+    ska_db.add_argument("-r", "--trolltop", required=True,
+                        help="value for the TROLLTOP environment variable")
+    ska_db.add_argument("-i", "--array-idx", type=int, required=True,
+                        help="Index of the query to run")
+    ska_db.add_argument("-b", "--batch-size", type=int, required=True,
+                        help="Batch size for the inner loop")
     # Parse the arguments and route the function call
     args = parser.parse_args()
     if args.subcommand == 'predict':

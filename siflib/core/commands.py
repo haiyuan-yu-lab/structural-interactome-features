@@ -15,3 +15,16 @@ def extract_chains(args, config):
     from siflib.io.extract_chains import run
     in_dir = Path(args.in_dir)
     run(in_dir)
+
+
+def ska_database(args, config):
+    from siflib.io.ska_wrapper import run
+    run(Path(args.query_info),
+        Path(args.database_info),
+        Path(args.output_dir),
+        args.submat,
+        args.trolltop,
+        args.bin,
+        args.psd_threshold,
+        args.array_idx,
+        args.batch_size)
