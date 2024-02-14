@@ -13,18 +13,20 @@ def run_ska(pdb1: str,
             pdb2_path: str,
             out_dir: Path,
             skabin: str,
-            env: Dict) -> Tuple[str, str, float, float]:
+            env: Dict) -> None:
     subdir = out_dir / pdb1[1:3]
     subdir.mkdir(exist_ok=True)
     outfile = subdir / f"{pdb1}-vs-{pdb2}"
-    cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
-    subprocess.run(cmd, shell=True, env=env, stdout=outfile, stderr=STDOUT)
+    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
+    with outfile.open("w") as of:
+        subprocess.run(cmd, shell=True, env=env, stdout=of, stderr=STDOUT)
 
     subdir = out_dir / pdb2[1:3]
     subdir.mkdir(exist_ok=True)
     outfile = subdir / f"{pdb2}-vs-{pdb1}"
-    cmd = f"{skabin} {pdb1_path} {pdb2_path} &> {outfile}"
-    subprocess.run(cmd, shell=True, env=env, stdout=outfile, stderr=STDOUT)
+    cmd = f"{skabin} {pdb1_path} {pdb2_path}"
+    with outfile.open("w") as of:
+        subprocess.run(cmd, shell=True, env=env, stdout=of, stderr=STDOUT)
 
 
 def run(query_info: Path,
@@ -58,7 +60,7 @@ def run(query_info: Path,
         batch = []
         overall_progress = 0
         curr_batch = 1
-        for i, (pdb_id, pdb_path) in enumerate(database.items()):
+        for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
             batch.append(
                 executor.submit(run_ska(query_element, query_path,
                                         pdb_id, pdb_path, output_dir,
