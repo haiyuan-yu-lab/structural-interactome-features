@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Dict, Tuple
 import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import queue
+import threading
 from subprocess import PIPE, STDOUT
 import logging
 log = logging.getLogger(__name__)
@@ -54,6 +56,7 @@ def run(query_info: Path,
             query[pdb_id] = pdb_path
     query_list = sorted(query.keys())
     query_element = query_list[array_idx]
+
     database = {}
     log.info("collecting database info...")
     with database_info.open() as di:
@@ -61,29 +64,40 @@ def run(query_info: Path,
             pdb_id, pdb_path = line.strip().split()
             database[pdb_id] = pdb_path
     total = len(database)
+
     log.info(f"query = {query_element}")
     log.info(f"Total = {total}")
+
+    results = {}
+    results_queue = queue.Queue()
+
+    def gatherer_worker():
+        while True:
+            _, subject, output = results_queue.get()
+            if subject is None and output is None:
+                break
+            results[subject] = output
+            results_queue.task_done()
+
+    gatherer_thread = threading.Thread(target=gatherer_worker)
+    gatherer_thread.start()
+
     with ProcessPoolExecutor() as executor:
         query_path = query[query_element]
-        batch = []
-        overall_progress = 0
-        curr_batch = 1
-        results = {}
+        futures = []
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
-            batch.append(
+            futures.append(
                     executor.submit(run_ska, query_element, query_path,
                                     pdb_id, pdb_path, skabin, env)
             )
             if i % batch_size == 0 or i == total:
-                log.info(f"submitted {i} jobs, current batch: {curr_batch}")
-                for future in as_completed(batch):
-                    overall_progress += 1
-                    _, subject, out = future.result()
-                    results[subject] = out
-                log.info(f"{overall_progress} runs at batch {curr_batch}")
-                log.info(f"{overall_progress/total*100:.2f}%")
-                curr_batch += 1
-                batch = []
+                log.info(f"submitted {i} jobs {i/total*100:.2f}%")
+        log.info("Gathering results in parallel...")
+        for future in as_completed(futures):
+            results_queue.put(future.result())
+    log.info("Submitting sentinel to queue...")
+    results_queue.put((None, None))
+    gatherer_thread.join()
     outfile = output_dir / f"{query_element}.ska"
     log.info(f"Writing results to {outfile}")
     with outfile.open("w") as of:
