@@ -13,12 +13,20 @@ def extract_chains(pdb_path: Path):
         lines = gzip.open(pdb_path, "rt").readlines()
         ext = ".ent.gz"
     chains_lines = {}
+    multimodel = False
     for line in lines:
-        if line[0:6] in ["ATOM  ", "HETATM", "TER   "]:
+        if line.startswith("MODEL"):
+            multimodel = True
+        elif line[0:6] in ["ATOM  ", "HETATM", "TER   "]:
             chain_id = line[21]
             if chain_id not in chains_lines:
                 chains_lines[chain_id] = []
             chains_lines[chain_id].append(line)
+        elif line.startswith("ENDMDL"):
+            if multimodel:
+                break
+            else:
+                log.error(f"Found ENDML without a MODEL {pdb_path}")
     for chain, clines in chains_lines.items():
         stem = pdb_path.name.replace(ext, '')
         outfile = pdb_path.parent / f"{stem}_{chain}.pdb"
