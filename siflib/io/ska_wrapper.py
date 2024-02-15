@@ -15,7 +15,7 @@ def run_ska(pdb1: str,
             env: Dict) -> str:
     cmd = f"{skabin} {pdb1_path} {pdb2_path}"
     p = subprocess.run(cmd, shell=True, env=env,
-                       stdout=PIPE, stderr=STDOUT)
+                       stdout=PIPE, stderr=STDOUT, text=True)
     return p.stdout
 
 
