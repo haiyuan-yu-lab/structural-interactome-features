@@ -93,8 +93,12 @@ def run(query_info: Path,
             if i % batch_size == 0 or i == total:
                 log.info(f"submitted {i} jobs {i/total*100:.2f}%")
         log.info("Gathering results in parallel...")
+        gathered = 0
         for future in as_completed(futures):
             results_queue.put(future.result())
+            gathered += 1
+            if gathered % batch_size == 0 or gathered == total:
+                log.info(f"gathered {gathered} jobs {gathered/total*100:.2f}%")
     log.info("Submitting sentinel to queue...")
     results_queue.put((None, None))
     gatherer_thread.join()
