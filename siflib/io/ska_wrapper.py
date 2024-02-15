@@ -12,11 +12,11 @@ def run_ska(pdb1: str,
             pdb2: str,
             pdb2_path: str,
             skabin: str,
-            env: Dict) -> str:
+            env: Dict) -> Tuple[str, str, str]:
     cmd = f"{skabin} {pdb1_path} {pdb2_path}"
     p = subprocess.run(cmd, shell=True, env=env,
                        stdout=PIPE, stderr=STDOUT, text=True)
-    return p.stdout
+    return pdb1, pdb2, p.stdout
 
 
 # This implementation writes each result to an individual file
@@ -71,14 +71,15 @@ def run(query_info: Path,
         results = {}
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
             batch.append(
-                    executor.submit(run_ska(query_element, query_path,
-                                            pdb_id, pdb_path, skabin, env))
+                    executor.submit(run_ska, query_element, query_path,
+                                    pdb_id, pdb_path, skabin, env)
             )
             if i % batch_size == 0 or i == total:
                 log.info(f"submitted {i} jobs, current batch: {curr_batch}")
                 for future in as_completed(batch):
                     overall_progress += 1
-                    results[pdb_id] = future.result()
+                    _, subject, out = future.result()
+                    results[subject] = out
                 log.info(f"{overall_progress} runs at batch {curr_batch}")
                 log.info(f"{overall_progress/total*100:.2f}%")
                 curr_batch += 1
