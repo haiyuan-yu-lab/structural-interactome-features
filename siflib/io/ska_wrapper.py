@@ -46,7 +46,8 @@ def run(query_info: Path,
         trolltop: str,
         skabin: str,
         array_idx: int = 0,
-        batch_size: int = 1000):
+        batch_size: int = 1000,
+        num_cpu: int | None = None):
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
 
     query = {}
@@ -82,7 +83,7 @@ def run(query_info: Path,
     gatherer_thread = threading.Thread(target=gatherer_worker)
     gatherer_thread.start()
 
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers=num_cpu) as executor:
         query_path = query[query_element]
         futures = []
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):

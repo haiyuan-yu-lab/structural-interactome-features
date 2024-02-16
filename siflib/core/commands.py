@@ -19,6 +19,7 @@ def extract_chains(args, config):
 
 def ska_database(args, config):
     from siflib.io.ska_wrapper import run
+    cc = None if args.cpu_count <= 0 else args.cpu_count
     run(Path(args.query_info),
         Path(args.database_info),
         Path(args.output_dir),
@@ -26,4 +27,5 @@ def ska_database(args, config):
         args.trolltop,
         args.bin,
         args.array_idx,
-        args.batch_size)
+        args.batch_size,
+        cc)
