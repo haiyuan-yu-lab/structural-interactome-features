@@ -58,6 +58,13 @@ def run(query_info: Path,
     query_list = sorted(query.keys())
     query_element = query_list[array_idx]
 
+    outfile = output_dir / f"{query_element}.ska"
+    donefile = output_dir / f"{query_element}.ska.done"
+
+    if donefile.exists():
+        log.info("Computation already finished, done")
+        exit(0)
+
     database = {}
     log.info("collecting database info...")
     with database_info.open() as di:
@@ -103,12 +110,13 @@ def run(query_info: Path,
     log.info("Submitting sentinel to queue...")
     results_queue.put((None, None, None))
     gatherer_thread.join()
-    outfile = output_dir / f"{query_element}.ska"
     log.info(f"Writing results to {outfile}")
     with outfile.open("w") as of:
         for key, output_str in results.items():
             of.write(f"SKA: query={query_element}, subject={key}\n")
             of.write(f"{output_str}\n")
+    with donefile.open("w") as of:
+        of.write("FINISHED")
     log.info("Done")
 
 

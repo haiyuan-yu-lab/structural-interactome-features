@@ -108,5 +108,3 @@ if __name__ == "__main__":
     except AttributeError as e:
         print(e)
         parser.parse_args(['--help'])
-
-
