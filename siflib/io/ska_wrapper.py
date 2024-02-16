@@ -101,7 +101,7 @@ def run(query_info: Path,
             if gathered % batch_size == 0 or gathered == total:
                 log.info(f"gathered {gathered} jobs {gathered/total*100:.2f}%")
     log.info("Submitting sentinel to queue...")
-    results_queue.put((None, None))
+    results_queue.put((None, None, None))
     gatherer_thread.join()
     outfile = output_dir / f"{query_element}.ska"
     log.info(f"Writing results to {outfile}")
