@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import queue
@@ -47,7 +47,7 @@ def run(query_info: Path,
         skabin: str,
         array_idx: int = 0,
         batch_size: int = 1000,
-        num_cpu: int | None = None):
+        num_cpu: Optional[int] = None):
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
 
     query = {}
