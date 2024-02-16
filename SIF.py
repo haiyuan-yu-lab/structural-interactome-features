@@ -90,7 +90,7 @@ if __name__ == "__main__":
                         help="Index of the query to run")
     ska_db.add_argument("-n", "--batch-size", type=int, required=True,
                         help="Batch size for the inner loop")
-    ska_db.add_argument("-c", "--cpu-count", type=int, required=True,
+    ska_db.add_argument("-c", "--cpu-count", type=int, default=-1,
                         help="Number of cores to use for parallel processing")
     # Parse the arguments and route the function call
     args = parser.parse_args()
