@@ -57,6 +57,7 @@ def run(query_info: Path,
             query[pdb_id] = pdb_path
     query_list = sorted(query.keys())
     query_element = query_list[array_idx]
+    log.info(f"query_list[{array_idx}] = {query_element}")
 
     outfile = output_dir / f"{query_element}.ska"
     donefile = output_dir / f"{query_element}.ska.done"
