@@ -19,6 +19,14 @@ def extract_domains_ecod(args, config):
     extract_domains_ecod(pdb_chains_file, ecod_domains_file, out_file)
 
 
+def create_ecod_pdbs(args, config):
+    from siflib.io.create_ecod_pdbs import create_ecod_pdbs
+    pdb_dir = Path(args.pdb_dir)
+    ecod_mapping_file = Path(args.ecod_mapping_file)
+    out_dir = Path(args.out_dir)
+    create_ecod_pdbs(pdb_dir, ecod_mapping_file, out_dir)
+
+
 def extract_chains(args, config):
     from siflib.io.extract_chains import run
     in_dir = Path(args.in_dir)

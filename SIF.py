@@ -73,6 +73,29 @@ if __name__ == "__main__":
                                       type=str,
                                       required=True)
 
+    # Create ECOD PDBs
+    create_ecod_pdbs = subparsers.add_parser(
+        "create-ecod-pdbs",
+        help="Given a file with ectracted ECOD domains created with"
+             " `extract-domains-ecod`, parses the PDB files and extracts each"
+             " ECOD domain into a PDB file.",
+    )
+
+    create_ecod_pdbs.set_defaults(func=commands.create_ecod_pdbs)
+    create_ecod_pdbs.add_argument("-p", "--pdb-dir",
+                                  help="Path to a PDB directory. It must be"
+                                       " indexed by the center of the PDB ID",
+                                  type=str,
+                                  required=True)
+    create_ecod_pdbs.add_argument("-e", "--ecod-mapping-file",
+                                  help="Path to a ecod mapping file (tsv)",
+                                  type=str,
+                                  required=True)
+    create_ecod_pdbs.add_argument("-o", "--out-dir",
+                                  help="Path to the output directory",
+                                  type=str,
+                                  required=True)
+
     # Extract Chains
     extract_chains = subparsers.add_parser(
         "extract-chains",
