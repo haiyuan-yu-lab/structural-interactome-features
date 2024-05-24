@@ -28,7 +28,7 @@ def create_ecod_pdbs(pdbs_dir: Path,
             pdb_chain, ranges, ecod_domain_id, _ = line.strip().split("\t")
             pdb_id, chain = pdb_chain.split("_")
             pdb_dir_index = pdb_id[1:3]
-            source_pdb = pdbs_dir / pdb_dir_index / f"{pdb_chain}.pdb"
+            source_pdb = pdbs_dir / pdb_dir_index / f"pdb{pdb_chain}.pdb"
             if not source_pdb.is_file():
                 log.error(f"Couldn't find a suitable PDB file for {pdb_chain}")
                 break
