@@ -1,6 +1,7 @@
 from pathlib import Path
 from Bio.PDB import PDBParser, PDBIO
 from Bio.PDB.PDBIO import Select
+import re
 import logging
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,10 @@ def create_ecod_pdbs(pdbs_dir: Path,
             residues = []
             for r in ranges.split(","):
                 _, ran = r.split(":")
-                start, end = ran.split("-")
+                match = re.match(r'(-?\d+)-(-?\d+)', ran)
+                if match:
+                    start = int(match.group(1))
+                    end = int(match.group(2))
                 residues.extend(range(int(start), int(end)+1))
             out_file = str(out_dir / f"{ecod_domain_id}.pdb")
             io = PDBIO()
