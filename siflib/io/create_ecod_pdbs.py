@@ -38,7 +38,7 @@ def create_ecod_pdbs(pdbs_dir: Path,
                 _, ran = r.split(":")
                 start, end = ran.split("-")
                 residues.extend(range(int(start), int(end)+1))
-            out_file = out_dir / f"{ecod_domain_id}.pdb"
+            out_file = str(out_dir / f"{ecod_domain_id}.pdb")
             io = PDBIO()
             io.set_structure(s)
             io.save(out_file, ECODDomain(residues))
