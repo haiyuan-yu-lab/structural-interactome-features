@@ -23,6 +23,8 @@ def create_ecod_pdbs(pdbs_dir: Path,
     parser = PDBParser()
     with chain_ranges.open() as cr:
         for line in cr:
+            if line.startswith("#"):
+                continue
             pdb_chain, ranges, ecod_domain_id, _ = line.strip().split("\t")
             pdb_id, chain = pdb_chain.split("_")
             pdb_dir_index = pdb_id[1:3]
