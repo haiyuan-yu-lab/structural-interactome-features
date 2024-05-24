@@ -4,11 +4,19 @@ log = logging.getLogger(__name__)
 
 
 def extract_domains(args, config):
-    from siflib.io.extract_domains import run
+    from siflib.io.extract_domains import extract_domains
     in_file = Path(args.in_file)
     fasta_file = Path(args.fasta_file)
     out_file = Path(args.out_file)
-    run(in_file, fasta_file, out_file)
+    extract_domains(in_file, fasta_file, out_file)
+
+
+def extract_domains_ecod(args, config):
+    from siflib.io.extract_domains import extract_domains_ecod
+    pdb_chains_file = Path(args.pdb_chains_file)
+    ecod_domains_file = Path(args.ecod_domains_file)
+    out_file = Path(args.out_file)
+    extract_domains_ecod(pdb_chains_file, ecod_domains_file, out_file)
 
 
 def extract_chains(args, config):

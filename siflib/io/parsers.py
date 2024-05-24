@@ -135,3 +135,78 @@ def parse_cd_hit(cd_hit_file: Path) -> Dict:
                 "bit socre": float(bs)
             })
     return domains
+
+
+def parse_ecod_domains(ecod_domains_file: Path) -> Dict:
+    """
+    Parses ECOD `domain.txt` files
+
+    Parameters
+    ----------
+    cd_hit_file : Path
+        Path to the ECOD `domain.txt` files
+
+    Returns
+    -------
+    Dict
+        A dictionary with the following structure:
+        {
+            "<PDB ID>_<PDB chain>": [{
+                "uid": "...",
+                "ecod_domain_id": "...",
+                "manual_rep": "...",
+                "t_id": "...",
+                "pdb": "...",
+                "chain": "...",
+                "pdb_range": "...",
+                "seqid_range": "...",
+                "unp_acc": "...",
+                "arch_name": "...",
+                "x_name": "...",
+                "h_name": "...",
+                "t_name": "...",
+                "f_name": "...",
+                "asm_status": "...",
+                "ligand": "...",
+            },
+            ...],
+            ...
+        }
+    """
+    assert ecod_domains_file.is_file()
+    domains = {}
+    with ecod_domains_file.open() as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            (uid, ecod_domain_id, manual_rep, t_id, pdb, chain, pdb_range,
+             seqid_range, unp_acc, arch_name,
+             x_name, h_name, t_name, f_name,
+             asm_status, ligand) = line.strip().split("\t")
+            key = f"{pdb}_{chain}"
+            if key not in domains.keys():
+                domains[key] = []
+
+            # pdbr_chain, pdbr_range = pdb_range.split(":")
+            # pdbr_start, pdbr_end = pdbr_range.split("-")
+            # seqidr_chain, seqidr_range = seqid_range.split(":")
+            # seqidr_start, seqidr_end = seqidr_range.split("-")
+            domains[key].append({
+                "uid": uid,
+                "ecod_domain_id": ecod_domain_id,
+                "manual_rep": manual_rep,
+                "t_id": t_id,
+                "pdb": pdb,
+                "chain": chain,
+                "pdb_range": pdb_range,
+                "seqid_range": seqid_range,
+                "unp_acc": unp_acc,
+                "arch_name": arch_name,
+                "x_name": x_name,
+                "h_name": h_name,
+                "t_name": t_name,
+                "f_name": f_name,
+                "asm_status": asm_status,
+                "ligand": ligand,
+            })
+    return domains

@@ -49,6 +49,30 @@ if __name__ == "__main__":
                                  type=str,
                                  required=True)
 
+    # Extract Domains ECOD
+    extract_domains_ecod = subparsers.add_parser(
+        "extract-domains-ecod",
+        help="Given a list of PDB chains, and a `domains.txt` file from the"
+             " ECOD database, produces a mapping file with the chain ID,"
+             " ECOD uid, and ecod domain id into a tsv file. Note: a chain may"
+             " be associated with multiple ECOD domains.",
+    )
+
+    extract_domains_ecod.set_defaults(func=commands.extract_domains_ecod)
+    extract_domains_ecod.add_argument("-p", "--pdb-chains-file",
+                                      help="Path to the file with a list of"
+                                           " PDB chains",
+                                      type=str,
+                                      required=True)
+    extract_domains_ecod.add_argument("-e", "--ecod-domains-file",
+                                      help="Path to a ecod domains file",
+                                      type=str,
+                                      required=True)
+    extract_domains_ecod.add_argument("-o", "--out-file",
+                                      help="Path to the output file",
+                                      type=str,
+                                      required=True)
+
     # Extract Chains
     extract_chains = subparsers.add_parser(
         "extract-chains",
