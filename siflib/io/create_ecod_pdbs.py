@@ -32,7 +32,7 @@ def create_ecod_pdbs(pdbs_dir: Path,
             source_pdb = pdbs_dir / pdb_dir_index / f"pdb{pdb_chain}.pdb"
             if not source_pdb.is_file():
                 log.error(f"Couldn't find a suitable PDB file for {pdb_chain}")
-                break
+                continue
             s = parser.get_structure(pdb_chain, source_pdb)
             residues = []
             for r in ranges.split(","):
