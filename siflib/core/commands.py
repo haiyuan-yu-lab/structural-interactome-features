@@ -35,7 +35,7 @@ def extract_chains(args, config):
 
 def ska_database(args, config):
     from siflib.io.ska_wrapper import run
-    cc = None if args.cpu_count <= 0 else args.cpu_count
+    num_cpu = None if args.cpu_count <= 0 else args.cpu_count
     run(Path(args.query_info),
         Path(args.database_info),
         Path(args.output_dir),
@@ -44,4 +44,15 @@ def ska_database(args, config):
         args.bin,
         args.array_idx,
         args.batch_size,
-        cc)
+        num_cpu)
+
+
+def get_neighborhood_clusters(args, config):
+    from siflib.core.neighborhood import get_neighborhood_clusters
+    num_cpu = None if args.cpu_count <= 0 else args.cpu_count
+    get_neighborhood_clusters(Path(args.targets),
+                              Path(args.ska_dir),
+                              Path(args.domain_ska_dir),
+                              Path(args.ecod_mapping_file),
+                              Path(args.output_file),
+                              num_cpu)

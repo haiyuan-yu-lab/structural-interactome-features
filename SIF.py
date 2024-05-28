@@ -139,17 +139,44 @@ if __name__ == "__main__":
                         help="Batch size for the inner loop")
     ska_db.add_argument("-c", "--cpu-count", type=int, default=-1,
                         help="Number of cores to use for parallel processing")
+
+    get_neighborhood_clusters = subparsers.add_parser(
+        "get-neighborhood-clusters",
+        help="Gets the clusters where structural neighbors are located"
+    )
+    get_neighborhood_clusters.set_defaults(
+            func=commands.get_neighborhood_clusters)
+    get_neighborhood_clusters.add_argument("-t", "--targets",
+                                           required=True,
+                                           help="Path to a list of targets."
+                                                " They should have"
+                                                " precalculated ska-db files")
+    get_neighborhood_clusters.add_argument("-s", "--ska-dir",
+                                           required=True,
+                                           help="Path to the ska-db directory")
+    get_neighborhood_clusters.add_argument("-d", "--domain-ska-dir",
+                                           required=True,
+                                           help="Path to the domain-ska-db"
+                                                " directory")
+    get_neighborhood_clusters.add_argument("-e", "--ecod-mapping-file",
+                                           required=True,
+                                           help="Path to a ecod mapping file"
+                                                " (tsv)",
+                                           type=str)
+    get_neighborhood_clusters.add_argument("-o", "--output-file",
+                                           required=True,
+                                           help="Path to the output file"
+                                                " (tsv)")
+    get_neighborhood_clusters.add_argument("-p", "--psd-threshold", type=float,
+                                           default=0.6,
+                                           help="SKA PSD cutoff")
+    get_neighborhood_clusters.add_argument("-c", "--cpu-count", type=int,
+                                           default=-1,
+                                           help="Number of cores to use for"
+                                                " parallel processing")
+
     # Parse the arguments and route the function call
     args = parser.parse_args()
-    if args.subcommand == 'predict':
-        if args.run_config is None and (args.alias is None or args.obo is None
-                                        or args.fasta is None):
-            parser.error('If no run configuration is provided, '
-                         'you must provide the following arguments:\n'
-                         '\t--alias\n'
-                         '\t--obo\n'
-                         '\t--fasta')
-
     try:
         args.func(args, config)
     except AttributeError as e:
