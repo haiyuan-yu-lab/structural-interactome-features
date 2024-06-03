@@ -15,7 +15,7 @@ def _get_neighboorhood_clusters_worker(target: str,
                                        psd_threshold: float,
                                        ) -> Tuple[str, Dict[str, float]]:
     """
-    returns a list of cluster representatives that match to the target with 
+    returns a list of cluster representatives that match to the target with
     a PSD <= `psd_threshold` either directly or through one of the component
     ECOD domains.
 
@@ -60,7 +60,7 @@ def _get_neighboorhood_clusters_worker(target: str,
                                       psd_threshold=psd_threshold)
 
     # from the full mapping, representatives are added directly
-    for subject, scores in ska_matches.items():
+    for subject, scores in ska_matches[target].items():
         if subject not in results:
             results[subject] = scores["PSD"]
         results[subject] = min(results[subject], scores["PSD"])
@@ -137,7 +137,7 @@ def get_neighborhood_clusters(targets_file: Path,
             if gathered % batch_size == 0 or gathered == total:
                 log.info(f"gathered {gathered} jobs {gathered/total*100:.2f}%")
     log.info("Submitting sentinel to queue...")
-    results_queue.put(None, None)
+    results_queue.put((None, None))
     gatherer_thread.join()
 
     log.info(f"Writing results to {output_file}")

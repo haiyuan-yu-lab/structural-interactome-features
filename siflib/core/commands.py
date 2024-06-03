@@ -55,4 +55,5 @@ def get_neighborhood_clusters(args, config):
                               Path(args.domain_ska_dir),
                               Path(args.ecod_mapping_file),
                               Path(args.output_file),
+                              args.psd_threshold,
                               num_cpu)

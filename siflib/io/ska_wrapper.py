@@ -6,6 +6,10 @@ import queue
 import threading
 from subprocess import PIPE, STDOUT
 import logging
+import io
+import shutil
+
+
 log = logging.getLogger(__name__)
 
 
@@ -111,11 +115,15 @@ def run(query_info: Path,
     log.info("Submitting sentinel to queue...")
     results_queue.put((None, None, None))
     gatherer_thread.join()
+    log.info("Building result buffer")
+    result_buffer = io.StringIO()
+    for key, output_str in results.items():
+        result_buffer.write(f"SKA: query={query_element}, subject={key}\n")
+        result_buffer.write(f"{output_str}\n")
     log.info(f"Writing results to {outfile}")
+
     with outfile.open("w") as of:
-        for key, output_str in results.items():
-            of.write(f"SKA: query={query_element}, subject={key}\n")
-            of.write(f"{output_str}\n")
+        shutil.copyfileobj(result_buffer, of)
     with donefile.open("w") as of:
         of.write("FINISHED")
     log.info("Done")

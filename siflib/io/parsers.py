@@ -256,10 +256,11 @@ def parse_ska_db(ska_file: Path,
     with ska_file.open() as db:
         for line in db:
             if line.startswith("SKA:"):
-                if query and subject and current_match["PSD"] <= psd_threshold:
-                    if query and query not in ska_matches:
+                if all([query, subject, "PSD" in current_match]) and\
+                        current_match["PSD"] <= psd_threshold:
+                    if query not in ska_matches:
                         ska_matches[query] = {}
-                    ska_matches[subject] = current_match
+                    ska_matches[query][subject] = current_match
                 _, pair = line.strip().split(":")
                 quer, subj = pair.split(",")
                 _, query = quer.split("=")
@@ -273,8 +274,9 @@ def parse_ska_db(ska_file: Path,
                 _, psd = line.strip().split(":")
                 psd = float(psd)
                 current_match["PSD"] = psd
-    if query and subject and current_match["PSD"] <= psd_threshold:
-        if query and query not in ska_matches:
+    if all([query, subject, "PSD" in current_match]) and\
+            current_match["PSD"] <= psd_threshold:
+        if query not in ska_matches:
             ska_matches[query] = {}
-        ska_matches[subject] = current_match
+        ska_matches[query][subject] = current_match
     return ska_matches

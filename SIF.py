@@ -141,7 +141,7 @@ if __name__ == "__main__":
                         help="Number of cores to use for parallel processing")
 
     get_neighborhood_clusters = subparsers.add_parser(
-        "get-neighborhood-clusters",
+        "neighborhood-clusters",
         help="Gets the clusters where structural neighbors are located"
     )
     get_neighborhood_clusters.set_defaults(
