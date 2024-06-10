@@ -59,19 +59,25 @@ def _get_neighboorhood_clusters_worker(target: str,
     ska_domain_matches = parse_ska_db(domain_file,
                                       psd_threshold=psd_threshold)
 
-    # from the full mapping, representatives are added directly
-    for subject, scores in ska_matches[target].items():
-        if subject not in results:
-            results[subject] = scores["PSD"]
-        results[subject] = min(results[subject], scores["PSD"])
-
-    # from the domain mapping, representatives need checked in the mapping
-    for domain, scores in ska_domain_matches.items():
-        subjects = ecod_mapping.get(domain, [])
-        for subject in subjects:
+    if target in ska_matches:
+        # from the full mapping, representatives are added directly
+        for subject, scores in ska_matches[target].items():
             if subject not in results:
                 results[subject] = scores["PSD"]
             results[subject] = min(results[subject], scores["PSD"])
+    else:
+        log.info(f"{target} not found in ska_matches")
+
+    if target in ska_domain_matches:
+        # from the domain mapping, representatives need checked in the mapping
+        for domain, scores in ska_domain_matches.items():
+            subjects = ecod_mapping.get(domain, [])
+            for subject in subjects:
+                if subject not in results:
+                    results[subject] = scores["PSD"]
+                results[subject] = min(results[subject], scores["PSD"])
+    else:
+        log.info(f"{target} not found in ska_domain_matches")
     return target, results
 
 
