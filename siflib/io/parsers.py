@@ -256,7 +256,6 @@ def parse_ska_db(ska_file: Path,
     query_flag = True
     with ska_file.open() as db:
         for line in db:
-            # print(line.split())
             if line.startswith("SKA:"):
                 if all([query, subject, "PSD" in current_match]) and\
                         current_match["PSD"] <= psd_threshold:
@@ -281,9 +280,6 @@ def parse_ska_db(ska_file: Path,
                 if query_flag:
                     query_flag = False
                     if len(row) == 3 and "start_query" not in current_match["alignment"]:
-                        # print(current_match)
-                        # print(row)
-                        # print(line)
                         # current_match["alignment"]["start_query"] = int(row[1])
                         current_match["alignment"]["start_query"] = row[1]
                     current_match["alignment"]["sse_query"] += row[-1]
@@ -292,7 +288,6 @@ def parse_ska_db(ska_file: Path,
                 else:
                     query_flag = True
                     if len(row) == 3 and "start_subject" not in current_match["alignment"]:
-                        # print(line)
                         # current_match["alignment"]["start_subject"] = int(row[1])
                         current_match["alignment"]["start_subject"] = row[1]
                     current_match["alignment"]["sse_subject"] += row[-1]
