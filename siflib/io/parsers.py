@@ -254,6 +254,7 @@ def parse_ska_db(ska_file: Path,
     for a given query and subject, if there is an alignmet error in the SKA
     file, the subject entry won't be added.
     """
+    # TODO(mateo): resSeq appears with iCode sometimes, maybe fix this
     if psd_threshold is None:
         psd_threshold = float("inf")
     ska_matches = {}
@@ -300,7 +301,7 @@ def parse_ska_db(ska_file: Path,
                 current_match["alignment"]["sse_subject"] += row[-1]
                 next_line = db.readline()
                 current_match["alignment"]["seq_subject"] += next_line.split()[-1]
-                
+
     if all([query, subject, "PSD" in current_match]) and\
             current_match["PSD"] <= psd_threshold:
         if query not in ska_matches:
