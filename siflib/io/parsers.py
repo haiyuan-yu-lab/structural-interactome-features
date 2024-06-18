@@ -251,9 +251,7 @@ def parse_ska_db(ska_file: Path,
     ska_matches = {}
     query = ""
     subject = ""
-    current_match = {"alignment": {"start_query": None, "start_subject": None, 
-                                   "sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
-    query_flag = True
+    current_match = {"alignment": {"sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
     with ska_file.open() as db:
         for line in db:
             if line.startswith("SKA:"):
@@ -266,7 +264,7 @@ def parse_ska_db(ska_file: Path,
                 quer, subj = pair.split(",")
                 _, query = quer.split("=")
                 _, subject = subj.split("=")
-                current_match = {"alignment": { "sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
+                current_match = {"alignment": {"sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
             elif line.startswith("RMSD"):
                 _, rmsd = line.strip().split(":")
                 rmsd = float(rmsd)
@@ -276,23 +274,25 @@ def parse_ska_db(ska_file: Path,
                 psd = float(psd)
                 current_match["PSD"] = psd
             elif line.strip().startswith(f"tc_sse:"):
+                # get query alignment
                 row = line.split()
-                if query_flag:
-                    query_flag = False
-                    if len(row) == 3 and "start_query" not in current_match["alignment"]:
-                        # current_match["alignment"]["start_query"] = int(row[1])
-                        current_match["alignment"]["start_query"] = row[1]
-                    current_match["alignment"]["sse_query"] += row[-1]
-                    next_line = db.readline()
-                    current_match["alignment"]["seq_query"] += next_line.split()[-1]
-                else:
-                    query_flag = True
-                    if len(row) == 3 and "start_subject" not in current_match["alignment"]:
-                        # current_match["alignment"]["start_subject"] = int(row[1])
-                        current_match["alignment"]["start_subject"] = row[1]
-                    current_match["alignment"]["sse_subject"] += row[-1]
-                    next_line = db.readline()
-                    current_match["alignment"]["seq_subject"] += next_line.split()[-1]
+                if len(row) == 3 and "start_query" not in current_match["alignment"]:
+                    # current_match["alignment"]["start_query"] = int(row[1])
+                    current_match["alignment"]["start_query"] = row[1] # PDB ID/index of first residue in query
+                current_match["alignment"]["sse_query"] += row[-1]
+                next_line = db.readline()
+                current_match["alignment"]["seq_query"] += next_line.split()[-1]
+
+                # get subject alignment
+                next_line = db.readline()
+                row = next_line.split()
+                if len(row) == 3 and "start_subject" not in current_match["alignment"]:
+                    # current_match["alignment"]["start_subject"] = int(row[1])
+                    current_match["alignment"]["start_subject"] = row[1] # PDB ID/index of first residue in subject
+                current_match["alignment"]["sse_subject"] += row[-1]
+                next_line = db.readline()
+                current_match["alignment"]["seq_subject"] += next_line.split()[-1]
+                
     if all([query, subject, "PSD" in current_match]) and\
             current_match["PSD"] <= psd_threshold:
         if query not in ska_matches:
