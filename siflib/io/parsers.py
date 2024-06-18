@@ -300,7 +300,6 @@ def parse_ska_db(ska_file: Path,
                 current_match["alignment"]["sse_subject"] += row[-1]
                 next_line = db.readline()
                 current_match["alignment"]["seq_subject"] += next_line.split()[-1]
-
     if all([query, subject, "PSD" in current_match]) and\
             current_match["PSD"] <= psd_threshold:
         if query not in ska_matches:
