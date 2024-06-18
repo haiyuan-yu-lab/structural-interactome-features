@@ -280,15 +280,21 @@ def parse_ska_db(ska_file: Path,
                 row = line.split()
                 if query_flag:
                     query_flag = False
-                    if "start_query" not in current_match["alignment"]:
-                        current_match["alignment"]["start_query"] = int(row[1])
+                    if len(row) == 3 and "start_query" not in current_match["alignment"]:
+                        # print(current_match)
+                        # print(row)
+                        # print(line)
+                        # current_match["alignment"]["start_query"] = int(row[1])
+                        current_match["alignment"]["start_query"] = row[1]
                     current_match["alignment"]["sse_query"] += row[-1]
                     next_line = db.readline()
                     current_match["alignment"]["seq_query"] += next_line.split()[-1]
                 else:
                     query_flag = True
                     if len(row) == 3 and "start_subject" not in current_match["alignment"]:
-                        current_match["alignment"]["start_subject"] = int(row[1])
+                        # print(line)
+                        # current_match["alignment"]["start_subject"] = int(row[1])
+                        current_match["alignment"]["start_subject"] = row[1]
                     current_match["alignment"]["sse_subject"] += row[-1]
                     next_line = db.readline()
                     current_match["alignment"]["seq_subject"] += next_line.split()[-1]
