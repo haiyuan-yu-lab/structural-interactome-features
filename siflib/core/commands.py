@@ -57,3 +57,13 @@ def get_neighborhood_clusters(args, config):
                               Path(args.output_file),
                               args.psd_threshold,
                               num_cpu)
+
+
+def expand_neighborhood_clusters(args, config):
+    from siflib.core.neighborhood import expand_neighborhood_clusters
+    expand_neighborhood_clusters(Path(args.in_file),
+                                 Path(args.cdhit_clusters),
+                                 Path(args.pdb_dir),
+                                 Path(args.ska_output_file),
+                                 Path(args.mapping_output_file),
+                                 )

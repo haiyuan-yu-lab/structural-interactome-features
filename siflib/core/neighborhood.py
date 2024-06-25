@@ -1,7 +1,7 @@
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Optional, Dict, Tuple
-from siflib.io.parsers import parse_ska_db
+from siflib.io.parsers import parse_ska_db, parse_cdhit_clusters
 import logging
 import queue
 import threading
@@ -152,4 +152,52 @@ def get_neighborhood_clusters(targets_file: Path,
         for target, data in results.items():
             for representative, score in data.items():
                 of.write(f"{target}\t{representative}\t{score}\n")
+    log.info("Done")
+
+
+def expand_neighborhood_clusters(target_to_reps_file: Path,
+                                 clusters_file: Path,
+                                 pdb_dir: Path,
+                                 ska_output_file: Path,
+                                 mapping_output_file: Path):
+    assert target_to_reps_file.is_file()
+    assert clusters_file.is_file()
+    log.info(f"reading clusters from: {clusters_file}")
+    clusters = parse_cdhit_clusters(clusters_file)
+    log.info("changing cluster dictionary")
+    clustermap = {}
+    for key, data in clusters.items():
+        clustermap[data["representative"]] = data["members"]
+    log.info(f"reading query -> cluster map from: {target_to_reps_file}")
+    target_to_reps = {}
+    # this will be used for the ska-db file, and mapped to entries in `pdb_dir`
+    mapped_members = set()
+    with target_to_reps_file.open() as ttr:
+        header = True
+        for line in ttr:
+            if header:
+                header = False
+                continue
+            # TODO(mateo): a score is included in the file, but it must have
+            # been handled before. In case this is needed, it could be useful
+            # to narrow it down further here, so it could make sense to add
+            # a new parameter to set a threshold on these scores, we ignore it
+            # for now.
+            query, representative, _ = line.strip().split()
+            if query not in target_to_reps:
+                target_to_reps[query] = []
+            target_to_reps[query].append(representative)
+    with mapping_output_file.open("w") as mof:
+        mof.write("query\tcluster member\n")
+        for query, representatives in target_to_reps.items():
+            for r in representatives:
+                for member in clustermap[r]:
+                    mapped_members.add(member["accession"])
+                    mof.write(f'{query}\t{member["accession"]}\n')
+    # /share/yu/resources/PDB-2024-01/0m/pdb10mh_A.pdb
+    with ska_output_file.open("w") as sof:
+        for member in sorted(mapped_members):
+            sub_dir = member[1:3]
+            fname = pdb_dir / sub_dir / f"pdb{member}.pdb"
+            sof.write(f"{member}\t{fname}\n")
     log.info("Done")

@@ -80,13 +80,13 @@ def parse_fasta(fasta_file: Path,
     return sequences
 
 
-def parse_cd_hit(cd_hit_file: Path) -> Dict:
+def parse_cdd(cdd_file: Path) -> Dict:
     """
     Parses the output of rpsblast
 
     Parameters
     ----------
-    cd_hit_file : Path
+    cdd_file : Path
         Path to the output file produced by rpsblast
 
     Returns
@@ -111,9 +111,9 @@ def parse_cd_hit(cd_hit_file: Path) -> Dict:
             ...
         }
     """
-    assert cd_hit_file.is_file()
+    assert cdd_file.is_file()
     domains = {}
-    with cd_hit_file.open() as f:
+    with cdd_file.open() as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -137,13 +137,70 @@ def parse_cd_hit(cd_hit_file: Path) -> Dict:
     return domains
 
 
+def parse_cdhit_clusters(cdhit_file: Path) -> Dict:
+    """
+    Parses CD-HIT cluster files
+
+    Parameters
+    ----------
+    cdhit_file : Path
+        Path to a cluster definition file generated with CD-HIT
+
+    Returns
+    -------
+    Dict
+        A dictionary with the following structure:
+        {
+            "Cluster id":{
+                "representative": <representative accession>,
+                "members": [
+                    {
+                        "qty_aminoacids": "...",
+                        "accession": "...",
+                        "perc_id": "...",
+                        "representative": "...",
+                    },
+                    ...
+                ],
+            }
+            ...
+        }
+    """
+
+    def get_perc(perc):
+        if "%" in perc:
+            return float(perc.split()[-1][:-1]), False
+        return 100.0, True
+    clusters = {}
+    key = None
+    with cdhit_file.open() as cdh:
+        for line in cdh:
+            if line.startswith(">Cluster"):
+                key = line.strip()[1:]
+                clusters[key] = {
+                    "members": [],
+                }
+            else:
+                _, aa, member, perc = line.strip().split(maxsplit=3)
+                perc_id, repr = get_perc(perc)
+                clusters[key]["members"].append({
+                    "qty_aminoacids": aa[:-1],
+                    "accession": member[1:-3],
+                    "perc_id": perc_id,
+                    "representative": repr,
+                })
+                if repr:
+                    clusters[key]["representative"] = member[1:-3]
+    return clusters
+
+
 def parse_ecod_domains(ecod_domains_file: Path) -> Dict:
     """
     Parses ECOD `domain.txt` files
 
     Parameters
     ----------
-    cd_hit_file : Path
+    ecod_domains_file : Path
         Path to the ECOD `domain.txt` files
 
     Returns
@@ -260,11 +317,18 @@ def parse_ska_db(ska_file: Path,
     ska_matches = {}
     query = ""
     subject = ""
-    current_match = {"alignment": {"sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
+    current_match = {
+        "alignment": {
+            "sse_query": "",
+            "seq_query": "",
+            "sse_subject": "",
+            "seq_subject": ""
+        }
+    }
     with ska_file.open() as db:
         for line in db:
             if line.startswith("SKA:"):
-                if all([query, subject, "PSD" in current_match]) and\
+                if all([query, subject, "PSD" in current_match]) and \
                         current_match["PSD"] <= psd_threshold:
                     if query not in ska_matches:
                         ska_matches[query] = {}
@@ -273,7 +337,14 @@ def parse_ska_db(ska_file: Path,
                 quer, subj = pair.split(",")
                 _, query = quer.split("=")
                 _, subject = subj.split("=")
-                current_match = {"alignment": {"sse_query": "", "seq_query": "", "sse_subject": "", "seq_subject": ""}}
+                current_match = {
+                    "alignment": {
+                        "sse_query": "",
+                        "seq_query": "",
+                        "sse_subject": "",
+                        "seq_subject": ""
+                    }
+                }
             elif line.startswith("RMSD"):
                 _, rmsd = line.strip().split(":")
                 rmsd = float(rmsd)
@@ -282,25 +353,31 @@ def parse_ska_db(ska_file: Path,
                 _, psd = line.strip().split(":")
                 psd = float(psd)
                 current_match["PSD"] = psd
-            elif line.strip().startswith(f"tc_sse:"):
+            elif line.strip().startswith("tc_sse:"):
                 # get query alignment
                 row = line.split()
-                if len(row) == 3 and "start_query" not in current_match["alignment"]:
+                if len(row) == 3\
+                        and "start_query" not in current_match["alignment"]:
                     # current_match["alignment"]["start_query"] = int(row[1])
-                    current_match["alignment"]["start_query"] = row[1] # PDB ID/index of first residue in query
+                    # PDB ID/index of first residue in query
+                    current_match["alignment"]["start_query"] = row[1]
                 current_match["alignment"]["sse_query"] += row[-1]
                 next_line = db.readline()
-                current_match["alignment"]["seq_query"] += next_line.split()[-1]
+                last = next_line.split()[-1]
+                current_match["alignment"]["seq_query"] += last
 
                 # get subject alignment
                 next_line = db.readline()
                 row = next_line.split()
-                if len(row) == 3 and "start_subject" not in current_match["alignment"]:
+                if len(row) == 3 \
+                        and "start_subject" not in current_match["alignment"]:
                     # current_match["alignment"]["start_subject"] = int(row[1])
-                    current_match["alignment"]["start_subject"] = row[1] # PDB ID/index of first residue in subject
+                    # PDB ID/index of first residue in subject
+                    current_match["alignment"]["start_subject"] = row[1]
                 current_match["alignment"]["sse_subject"] += row[-1]
                 next_line = db.readline()
-                current_match["alignment"]["seq_subject"] += next_line.split()[-1]
+                last = next_line.split()[-1]
+                current_match["alignment"]["seq_subject"] += last
 
     if all([query, subject, "PSD" in current_match]) and\
             current_match["PSD"] <= psd_threshold:

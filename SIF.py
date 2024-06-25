@@ -145,7 +145,7 @@ if __name__ == "__main__":
         help="Gets the clusters where structural neighbors are located"
     )
     get_neighborhood_clusters.set_defaults(
-            func=commands.get_neighborhood_clusters)
+        func=commands.get_neighborhood_clusters)
     get_neighborhood_clusters.add_argument("-t", "--targets",
                                            required=True,
                                            help="Path to a list of targets."
@@ -174,6 +174,42 @@ if __name__ == "__main__":
                                            default=-1,
                                            help="Number of cores to use for"
                                                 " parallel processing")
+
+    # Extract Chains
+    expand_clusters = subparsers.add_parser(
+        "expand-clusters",
+        help="Given the output of the `neighborhood-cluster` command, makes a"
+             " file suitable to use in the `ska-db` command as a database.",
+    )
+
+    expand_clusters.set_defaults(func=commands.expand_neighborhood_clusters)
+    expand_clusters.add_argument("-i", "--in-file",
+                                 help="Path to a TSV file mapping queries to"
+                                      " cluster representatives",
+                                 type=str,
+                                 required=True)
+    expand_clusters.add_argument("-s", "--ska-output-file",
+                                 help="Path to a TSV file suitable for use as"
+                                      " a `ska-db` database file (will be"
+                                      " created)",
+                                 type=str,
+                                 required=True)
+    expand_clusters.add_argument("-m", "--mapping-output-file",
+                                 help="Path to the tsv file mapping targets to"
+                                      "cluster members (in TSV format)",
+                                 type=str,
+                                 required=True)
+    expand_clusters.add_argument("-c", "--cdhit-clusters",
+                                 help="Path to a CD-HIT output file, which "
+                                      " must have the same cluster references"
+                                      " as the `--in-file` argument",
+                                 type=str,
+                                 required=True)
+    expand_clusters.add_argument("-p", "--pdb-dir",
+                                 help="Path to a PDB directory. It must be"
+                                      " indexed by the center of the PDB ID",
+                                 type=str,
+                                 required=True)
 
     # Parse the arguments and route the function call
     args = parser.parse_args()

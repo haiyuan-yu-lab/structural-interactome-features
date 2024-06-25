@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-from siflib.io.parsers import parse_fasta, parse_cd_hit, parse_ecod_domains
+from siflib.io.parsers import parse_fasta, parse_cdd, parse_ecod_domains
 log = logging.getLogger(__name__)
 
 
@@ -8,7 +8,7 @@ def extract_domains(domains_file: Path,
                     fasta_file: Path,
                     out_file: Path):
     log.info("reading domains")
-    domains = parse_cd_hit(domains_file)
+    domains = parse_cdd(domains_file)
     log.info("reading FASTA file")
     fasta = parse_fasta(fasta_file, uniprot_header=False, skip_metadata=True)
     with out_file.open("w") as of:
