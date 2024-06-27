@@ -47,6 +47,21 @@ def ska_database(args, config):
         num_cpu)
 
 
+def ska_database_map(args, config):
+    from siflib.io.ska_wrapper import run_with_mapping
+    num_cpu = None if args.cpu_count <= 0 else args.cpu_count
+    run_with_mapping(Path(args.query_info),
+                     Path(args.database_info),
+                     Path(args.mapping_file),
+                     Path(args.output_dir),
+                     args.submat,
+                     args.trolltop,
+                     args.bin,
+                     args.array_idx,
+                     args.batch_size,
+                     num_cpu)
+
+
 def get_neighborhood_clusters(args, config):
     from siflib.core.neighborhood import get_neighborhood_clusters
     num_cpu = None if args.cpu_count <= 0 else args.cpu_count
