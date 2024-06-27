@@ -157,7 +157,7 @@ def run_with_mapping(query_info: Path,
                 curr_query = q
                 curr_arr_idx += 1
                 if curr_arr_idx == array_idx:
-                    query_pdb_id = query
+                    query_pdb_id = q
                 elif curr_arr_idx < array_idx:
                     continue
                 else:
