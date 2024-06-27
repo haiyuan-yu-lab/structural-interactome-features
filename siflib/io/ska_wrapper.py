@@ -194,7 +194,7 @@ def run_with_mapping(query_info: Path,
 
     log.info(f"query = {query_element}")
     log.info(f"Total = {total}")
-    log.info(f"Total(jobs) = {len(total)}")
+    log.info(f"Total(jobs) = {len(jobs)}")
 
     results = {}
     results_queue = queue.Queue()
