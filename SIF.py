@@ -141,33 +141,33 @@ if __name__ == "__main__":
                         help="Number of cores to use for parallel processing")
 
     # Make SKA database
-    ska_db_map = subparsers.add_parser(
+    ska_map = subparsers.add_parser(
         "ska-db-map",
         help="the same as `ska-db`, taking an additional file mapping queries"
              " to subjects to avoid a full pairwise comparison.",
     )
 
-    ska_db.set_defaults(func=commands.ska_database)
-    ska_db.add_argument("-q", "--query-info", required=True,
-                        help="Path to a query map from ID to Path (tsv)")
-    ska_db.add_argument("-d", "--database-info", required=True,
-                        help="Path to a query map from ID to Path (tsv)")
-    ska_db.add_argument("-m", "--mapping-file", required=True,
-                        help="Path to a query map from target to database")
-    ska_db.add_argument("-o", "--output-dir", required=True,
-                        help="Path to the output directory")
-    ska_db.add_argument("-s", "--submat", required=True,
-                        help="value for the SUBMAT environment variable")
-    ska_db.add_argument("-b", "--bin", required=True,
-                        help="Path to the ska binary")
-    ska_db.add_argument("-r", "--trolltop", required=True,
-                        help="value for the TROLLTOP environment variable")
-    ska_db.add_argument("-i", "--array-idx", type=int, required=True,
-                        help="Index of the query to run (will run this batch)")
-    ska_db.add_argument("-n", "--batch-size", type=int, required=True,
-                        help="Batch size")
-    ska_db.add_argument("-c", "--cpu-count", type=int, default=-1,
-                        help="Number of cores to use for parallel processing")
+    ska_map.set_defaults(func=commands.ska_database_map)
+    ska_map.add_argument("-q", "--query-info", required=True,
+                         help="Path to a query map from ID to Path (tsv)")
+    ska_map.add_argument("-d", "--database-info", required=True,
+                         help="Path to a query map from ID to Path (tsv)")
+    ska_map.add_argument("-m", "--mapping-file", required=True,
+                         help="Path to a query map from target to database")
+    ska_map.add_argument("-o", "--output-dir", required=True,
+                         help="Path to the output directory")
+    ska_map.add_argument("-s", "--submat", required=True,
+                         help="value for the SUBMAT environment variable")
+    ska_map.add_argument("-b", "--bin", required=True,
+                         help="Path to the ska binary")
+    ska_map.add_argument("-r", "--trolltop", required=True,
+                         help="value for the TROLLTOP environment variable")
+    ska_map.add_argument("-i", "--array-idx", type=int, required=True,
+                         help="Index of the query to run")
+    ska_map.add_argument("-n", "--batch-size", type=int, required=True,
+                         help="Batch size")
+    ska_map.add_argument("-c", "--cpu-count", type=int, default=-1,
+                         help="Number of cores to use for parallel processing")
 
     get_neighborhood_clusters = subparsers.add_parser(
         "neighborhood-clusters",
