@@ -176,8 +176,8 @@ def run_with_mapping(query_info: Path,
 
     if query_element == "not_found":
         log.error(f"could not find path for {query_pdb_id}")
-    outfile = output_dir / f"{query_element}.ska"
-    donefile = output_dir / f"{query_element}.ska.done"
+    outfile = output_dir / f"{query_pdb_id}.ska"
+    donefile = output_dir / f"{query_pdb_id}.ska.done"
 
     if donefile.exists():
         log.info("Computation already finished, done")
@@ -215,7 +215,7 @@ def run_with_mapping(query_info: Path,
         futures = []
         for i, (pdb_id, pdb_path) in enumerate(database.items(), start=1):
             futures.append(
-                executor.submit(run_ska, query_element, query_path,
+                executor.submit(run_ska, query_pdb_id, query_path,
                                 pdb_id, pdb_path, skabin, env)
             )
             if i % batch_size == 0 or i == total:
