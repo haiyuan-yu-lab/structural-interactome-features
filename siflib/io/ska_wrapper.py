@@ -141,38 +141,29 @@ def run_with_mapping(query_info: Path,
                      num_cpu: Optional[int] = None):
     env = {"TROLLTOP": trolltop, "SUBMAT": submat}
 
+    query_element = "not_found"
+    with query_info.open() as qi:
+        for curr_idx, line in enumerate(qi):
+            if curr_idx != array_idx:
+                continue
+            pdb_id, pdb_path = line.strip().split()
+            query_element = pdb_path
+            query_pdb_id = pdb_id
+    log.info(f"query_list[{array_idx}] = {query_element}")
+
     log.info(f"Loading mapping file: {mapping_file}")
     query_pdb_id = ""
     jobs = []
     with mapping_file.open() as mf:
-        curr_arr_idx = -1
-        curr_query = None
         header = True
         for line in mf:
             if header:
                 header = False
                 continue
-            q, cmember = line.strip().split()
-            if q != curr_query:
-                curr_query = q
-                curr_arr_idx += 1
-                if curr_arr_idx == array_idx:
-                    query_pdb_id = q
-                elif curr_arr_idx < array_idx:
-                    continue
-                else:
-                    break
-            if curr_arr_idx == array_idx:
+            pdb_id, cmember = line.strip().split()
+            if pdb_id == query_pdb_id:
                 jobs.append(cmember)
     log.info(f"Number of comparisons for index {array_idx}: {len(jobs)}")
-
-    query_element = "not_found"
-    with query_info.open() as qi:
-        for line in qi:
-            pdb_id, pdb_path = line.strip().split()
-            if pdb_id == query_pdb_id:
-                query_element = pdb_path
-    log.info(f"query_list[{array_idx}] = {query_element}")
 
     if query_element == "not_found":
         log.error(f"could not find path for {query_pdb_id}")
