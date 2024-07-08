@@ -149,10 +149,10 @@ def run_with_mapping(query_info: Path,
             pdb_id, pdb_path = line.strip().split()
             query_element = pdb_path
             query_pdb_id = pdb_id
+            break
     log.info(f"query_list[{array_idx}] = {query_pdb_id}")
 
     log.info(f"Loading mapping file: {mapping_file}")
-    query_pdb_id = ""
     jobs = []
     with mapping_file.open() as mf:
         header = True
