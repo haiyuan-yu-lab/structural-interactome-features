@@ -149,7 +149,7 @@ def run_with_mapping(query_info: Path,
             pdb_id, pdb_path = line.strip().split()
             query_element = pdb_path
             query_pdb_id = pdb_id
-    log.info(f"query_list[{array_idx}] = {query_element}")
+    log.info(f"query_list[{array_idx}] = {query_pdb_id}")
 
     log.info(f"Loading mapping file: {mapping_file}")
     query_pdb_id = ""
@@ -163,7 +163,7 @@ def run_with_mapping(query_info: Path,
             pdb_id, cmember = line.strip().split()
             if pdb_id == query_pdb_id:
                 jobs.append(cmember)
-    log.info(f"Number of comparisons for index {array_idx}: {len(jobs)}")
+    log.info(f"Number of comparisons for {query_pdb_id}: {len(jobs)}")
 
     if query_element == "not_found":
         log.error(f"could not find path for {query_pdb_id}")
