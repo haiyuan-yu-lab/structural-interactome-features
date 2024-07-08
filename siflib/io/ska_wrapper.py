@@ -171,7 +171,7 @@ def run_with_mapping(query_info: Path,
     donefile = output_dir / f"{query_pdb_id}.ska.done"
 
     if donefile.exists():
-        log.info("Computation already finished, done")
+        log.info(f"Computation already finished, done, {donefile} exists.")
         exit(0)
 
     database = {}
