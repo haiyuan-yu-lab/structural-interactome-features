@@ -35,12 +35,12 @@ def run(homstrad_file: Path, output_file: Path, pdb_dir: Path):
     with homstrad_file.open() as hf:
         for line in hf:
             _, pdb1, pdb2 = line.strip().split()
-        # we only want to keep the pairs with existing PDBs
-        p1, path1 = get_pdbfile(pdb1)
-        p2, path2 = get_pdbfile(pdb2)
-        if p1 is not None and p2 is not None:
-            pdbs.add((p1, path1))
-            pdbs.add((p2, path2))
+            # we only want to keep the pairs with existing PDBs
+            p1, path1 = get_pdbfile(pdb1)
+            p2, path2 = get_pdbfile(pdb2)
+            if p1 is not None and p2 is not None:
+                pdbs.add((p1, path1))
+                pdbs.add((p2, path2))
 
     with output_file.open("w") as of:
         for pdb, path in pdbs:
