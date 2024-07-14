@@ -51,7 +51,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(
         description="Build a id to pdb path map for all required entries")
-    parser.add_argument("-h", "--homstrad-pairs-file", required=True,
+    parser.add_argument("-i", "--homstrad-pairs-file", required=True,
                         help="Path to a file with homstrad pairs (3 columns)")
     parser.add_argument("-p", "--pdb-dir", required=True,
                         help="Path to the PDB directory")
