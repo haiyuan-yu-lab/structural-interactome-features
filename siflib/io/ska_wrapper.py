@@ -224,6 +224,7 @@ def run_with_mapping(query_info: Path,
     gatherer_thread.join()
     log.info("Building result buffer")
     result_buffer = io.StringIO()
+    log.info(f"len results = {len(results)}")
     for key, output_str in results.items():
         result_buffer.write(f"SKA: query={query_element}, subject={key}\n")
         result_buffer.write(f"{output_str}\n")
