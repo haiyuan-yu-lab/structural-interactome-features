@@ -124,6 +124,7 @@ def run(query_info: Path,
     log.info(f"Writing results to {outfile}")
 
     with outfile.open("w") as of:
+        result_buffer.seek(0)
         shutil.copyfileobj(result_buffer, of)
     with donefile.open("w") as of:
         of.write("FINISHED")
@@ -226,11 +227,13 @@ def run_with_mapping(query_info: Path,
     result_buffer = io.StringIO()
     log.info(f"len results = {len(results)}")
     for key, output_str in results.items():
+        log.info(f"{key, output_str}")
         result_buffer.write(f"SKA: query={query_element}, subject={key}\n")
         result_buffer.write(f"{output_str}\n")
     log.info(f"Writing results to {outfile}")
 
     with outfile.open("w") as of:
+        result_buffer.seek(0)
         shutil.copyfileobj(result_buffer, of)
     with donefile.open("w") as of:
         of.write("FINISHED")
