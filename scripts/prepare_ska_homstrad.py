@@ -19,12 +19,12 @@ def run(homstrad_file: Path, output_file: Path, pdb_dir: Path):
     def get_pdbfile(pdb: str) -> Tuple:
         pdb_subdir = pdb[1:3]
         if len(pdb) == 4:  # no chain
-            candidates = sorted((pdb_dir / pdb_subdir).glob(f"pdb{pdb}*"))
+            candidates = sorted((pdb_dir / pdb_subdir).glob(f"pdb{pdb}*.pdb"))
             if len(candidates) == 1:
                 return pdb, str(candidates[0])
         elif len(pdb) == 5:  # last char is the chain, case insensitive
             chain = pdb[-1]
-            candidates = sorted((pdb_dir / pdb_subdir).glob(f"pdb{pdb}*"))
+            candidates = sorted((pdb_dir / pdb_subdir).glob(f"pdb{pdb[:-1]}*.pdb"))
             for candidate in candidates:
                 file_chain = str(candidate).split("_")[-1].replace(".pdb", "")
                 if file_chain.upper() == chain.upper():
