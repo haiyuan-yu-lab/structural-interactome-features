@@ -385,3 +385,80 @@ def parse_ska_db(ska_file: Path,
             ska_matches[query] = {}
         ska_matches[query][subject] = current_match
     return ska_matches
+
+
+def parse_homstrad_alignments(homstrad_file: Path):
+    """
+    Parses the `homstrad_alignments.txt` file distributed with Foldseek
+
+    Parameters
+    ----------
+    homstrad_file : Path
+        Path to the `homstrad_alignments.txt` files
+
+    Returns
+    -------
+    Dict
+        A dictionary with the following structure:
+        {
+            "<query>":{
+                "<subject>": {
+                    "<method>": {
+                        "sensitivity": "...",
+                        "precision": "...",
+                        "alignment": {
+                            "start_query": "..."
+                            "seq_query": "..."
+                            "start_subject": "..."
+                            "seq_subject": "..."
+                         }
+                    },
+                },
+                ...
+            },
+            ...
+        }
+
+    Note
+    ----
+    Header lines in the `homstrad_alingments.txt` file should be unmodified,
+    and have the following structure:
+    >prot_name acc1 acc2 method_name sensitivity: <value> precision: <value>
+    """
+    res = {}
+    with homstrad_file.open() as hf:
+        current_elem = None
+        for line in hf:
+            if line.startswith(">"):
+                pname, a1, a2, me, _, s, _, p = line[1:].strip().split()
+                try:
+                    s = float(s)
+                except ValueError:
+                    s = 0.0
+                try:
+                    p = float(p)
+                except ValueError:
+                    p = 0.0
+                if a1 not in res:
+                    res[a1] = {}
+                if a2 not in res[a1]:
+                    res[a1][a2] = {}
+                if me not in res[a1][a2]:
+                    res[a1][a2][me] = {
+                        "sensitivity": s,
+                        "precision": p,
+                        "seq_query": "",
+                        "seq_subject": "",
+                    }
+                current_elem = res[a1][a2][me]
+            elif line.strip():
+                _, idx, seq = line.strip().split()
+                if "start_query" not in current_elem:
+                    current_elem["start_query"] = idx
+                current_elem["seq_query"] += seq
+                next_line = hf.readline()
+                _, idx, seq = next_line.strip().split()
+                if "start_subject" not in current_elem:
+                    current_elem["start_subject"] = idx
+                current_elem["seq_subject"] += seq
+    return res

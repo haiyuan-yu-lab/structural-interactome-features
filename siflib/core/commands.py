@@ -82,3 +82,25 @@ def expand_neighborhood_clusters(args, config):
                                  Path(args.ska_output_file),
                                  Path(args.mapping_output_file),
                                  )
+
+
+def extract_ska_alignments(args, config):
+    from siflib.io.extract_alingments import (extract_alignments_ska_dir,
+                                              extract_alingments_to_file)
+    extract_alingments_to_file(
+        extract_alignments_ska_dir(Path(args.ska_dir)),
+        Path(args.output_file)
+    )
+
+
+def extract_homstrad_alignments(args, config):
+    from siflib.io.extract_alingments import (extract_alignments_homstrad_file,
+                                              extract_alingments_to_file)
+    extract_alingments_to_file(
+        extract_alignments_homstrad_file(Path(args.homstrad_file)),
+        Path(args.output_file)
+    )
+
+
+def evaluate_alignment(args, config):
+    fkkk
