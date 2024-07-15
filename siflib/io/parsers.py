@@ -449,16 +449,18 @@ def parse_homstrad_alignments(homstrad_file: Path):
                         "precision": p,
                         "seq_query": "",
                         "seq_subject": "",
+                        "start_query": "none",
+                        "start_subject": "none",
                     }
                 current_elem = res[a1][a2][me]
             elif line.strip():
                 _, idx, seq = line.strip().split()
-                if "start_query" not in current_elem:
+                if current_elem["start_query"] == "none":
                     current_elem["start_query"] = idx
                 current_elem["seq_query"] += seq
                 next_line = hf.readline()
                 _, idx, seq = next_line.strip().split()
-                if "start_subject" not in current_elem:
+                if current_elem["start_subject"] == "none":
                     current_elem["start_subject"] = idx
                 current_elem["seq_subject"] += seq
     return res

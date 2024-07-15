@@ -29,7 +29,9 @@ def extract_alignments_homstrad_file(homstrad_file: Path) -> Dict:
             for method, data_method in data_a2.items():
                 key = (a1, a2, method)
                 res[key] = (
+                    data_method["start_query"],
                     data_method["seq_query"],
+                    data_method["start_subject"],
                     data_method["seq_subject"]
                 )
     return res
@@ -57,10 +59,18 @@ def extract_alignments_ska_dir(ska_dir: Path) -> Dict:
         for a1, data_a1 in ska_alignment.items():
             for a2, data_a2 in data_a1.items():
                 key = (a1, a2, "ska")
-                res[key] = (
-                    data_a2["alignment"]["seq_query"],
-                    data_a2["alignment"]["seq_subject"],
-                )
+                d = data_a2["alignment"]
+                try:
+                    res[key] = (
+                        d["start_query"],
+                        d["seq_query"],
+                        d["start_subject"],
+                        d["seq_subject"]
+                    )
+                except:
+                    print(key)
+                    continue
+
 
     return res
 
